@@ -10,6 +10,29 @@ import { getDatabase, ref, set, get, update, push, child, onValue, remove, runTr
 const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
 const IMGBB_API_KEY = "54345d70fbd11c8a3ccd7e180c3281e2";
 
+// Helper function to dynamically parse and normalize categories from Firebase (Array or Object format)
+function normalizeCategories(val) {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+        return val.filter(Boolean).map(item => {
+            if (typeof item === 'object' && item !== null) {
+                return item.name || item.title || item.value || '';
+            }
+            return String(item).trim();
+        }).filter(Boolean);
+    }
+    if (typeof val === 'object') {
+        return Object.keys(val).map(key => {
+            const item = val[key];
+            if (item && typeof item === 'object') {
+                return item.name || item.title || item.value || key;
+            }
+            return String(item).trim();
+        }).filter(Boolean);
+    }
+    return [];
+}
+
 // Smart Media Detection & Local Video Folder Integration
 function resolveMediaSrc(mediaVal) {
     if (!mediaVal) {
@@ -495,7 +518,6 @@ window.calculateExchange = calculateExchange;
 
 function togglePriceField() {
     const type = document.getElementById('pType').value;
-    // Modified to show price field for both paid and ad_or_coins
     if (type === 'paid' || type === 'ad_or_coins') {
         document.getElementById('priceFieldContainer').classList.remove('hidden');
     } else {
@@ -788,7 +810,6 @@ if (promptFormEl) {
             type: document.getElementById('pType').value,
             priceCoins: (document.getElementById('pType').value === 'paid' || document.getElementById('pType').value === 'ad_or_coins') ? (parseInt(document.getElementById('pPrice').value) || 0) : 0,
             
-            // NEW ADMIN FIELDS (Will map gracefully if inputs exist in DOM)
             adLink: document.getElementById('pAdLink') ? document.getElementById('pAdLink').value.trim() : "https://toolswebsite205.blogspot.com",
             adPriceCoins: document.getElementById('pAdPrice') ? parseInt(document.getElementById('pAdPrice').value) : 50000,
 
@@ -995,7 +1016,7 @@ async function fetchGitHubImages() {
     }
 
     try {
-        const response = await fetch("https://api.github.io/repos/freeearningsonline/Ai-Prompt-/contents/images");
+        const response = await fetch("https://api.github.com/repos/freeearningsonline/Ai-Prompt-/contents/images");
         if (response.ok) {
             const data = await response.json();
             datalist.innerHTML = '';
@@ -1211,7 +1232,7 @@ window.renderHomeBlogSlider = function() {
         const blogCat = blog.category || 'AI Guide';
 
         const card = document.createElement('article');
-        card.className = "snap-start shrink-0 w-[85%] md:w-[45%] lg:w-[30%] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col transition hover:shadow-md cursor-pointer";
+        card.className = "snap-start shrink-0 w-[85%] md:w-[45%] lg:w-[30%] bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col transition hover:shadow-md cursor-pointer";
         card.onclick = () => window.openBlogDetail(blog.id);
 
         card.innerHTML = `
@@ -1581,13 +1602,15 @@ onAuthStateChanged(auth, async (user) => {
 
 const categoriesRef = ref(db, 'categories');
 onValue(categoriesRef, (snapshot) => {
+    let parsedCats = [];
     if (snapshot.exists()) {
-        window.appState.categories = snapshot.val();
+        parsedCats = normalizeCategories(snapshot.val());
     } else {
         const defaultCats = ["Viral", "ChatGPT", "Midjourney", "Flux", "Runway", "Kling", "Veo", "IG Trend", "Boys", "Girls"];
         set(categoriesRef, defaultCats);
-        window.appState.categories = defaultCats;
+        parsedCats = defaultCats;
     }
+    window.appState.categories = parsedCats;
     renderCategoryPills(window.appState.categories);
     if(typeof window.renderCategoryDropdown === 'function') {
         window.renderCategoryDropdown(window.appState.categories);
@@ -1596,13 +1619,15 @@ onValue(categoriesRef, (snapshot) => {
 
 const blogCategoriesRef = ref(db, 'blogCategories');
 onValue(blogCategoriesRef, (snapshot) => {
+    let parsedBlogCats = [];
     if (snapshot.exists()) {
-        window.appState.blogCategories = snapshot.val();
+        parsedBlogCats = normalizeCategories(snapshot.val());
     } else {
         const defaultBlogCats = ["AI Tips", "Updates", "Guides"];
         set(blogCategoriesRef, defaultBlogCats);
-        window.appState.blogCategories = defaultBlogCats;
+        parsedBlogCats = defaultBlogCats;
     }
+    window.appState.blogCategories = parsedBlogCats;
     renderBlogCategoryPills(window.appState.blogCategories);
     renderBlogCategoryDropdown(window.appState.blogCategories);
     if(typeof window.renderAdminBlogCategoryManager === 'function') {
@@ -1633,7 +1658,8 @@ function renderCategoryPills(categories) {
     container.appendChild(createBtn('Video Prompts', 'Video Prompts'));
     container.appendChild(createBtn('Image Prompts', 'Image Prompts'));
 
-    categories.forEach(cat => {
+    const uniqueCats = Array.from(new Set(categories));
+    uniqueCats.forEach(cat => {
         container.appendChild(createBtn(cat, cat));
     });
 }
@@ -1645,7 +1671,9 @@ window.renderCategoryDropdown = function(categories) {
     if(select) select.innerHTML = '';
     if(uSelect) uSelect.innerHTML = '';
     
-    categories.forEach(cat => {
+    const uniqueCats = Array.from(new Set(categories));
+    
+    uniqueCats.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat;
         opt.innerText = cat;
@@ -1670,7 +1698,8 @@ function renderBlogCategoryPills(categories) {
     allBtn.setAttribute('data-blog-category', 'All');
     container.appendChild(allBtn);
 
-    categories.forEach(cat => {
+    const uniqueBlogCats = Array.from(new Set(categories));
+    uniqueBlogCats.forEach(cat => {
         const btn = document.createElement('button');
         btn.onclick = () => window.filterBlogCategory(cat);
         btn.className = "blog-category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition text-slate-955 dark:text-slate-100";
@@ -1684,7 +1713,8 @@ function renderBlogCategoryDropdown(categories) {
     const select = document.getElementById('bCategory');
     if(!select) return;
     select.innerHTML = '';
-    categories.forEach(cat => {
+    const uniqueBlogCats = Array.from(new Set(categories));
+    uniqueBlogCats.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat;
         opt.innerText = cat;
@@ -1758,7 +1788,7 @@ function syncUserPurchaseHistory() {
     });
 }
 
-// UPDATED: AUTO APPROVAL CHANGED TO 24 HOURS (86400000 ms)
+// AUTO APPROVAL CHANGED TO 24 HOURS (86400000 ms)
 async function triggerAutoApprovalCheck() {
     try {
         const txRef = ref(db, 'transactions');
@@ -1915,7 +1945,6 @@ function renderPrompts() {
     }
 
     paginatedItems.forEach(p => {
-        // Evaluate type for label
         let costLabel = 'Free';
         if (p.type === 'paid') costLabel = `<span class="text-amber-400"><i class="fa-solid fa-coins mr-1"></i>${formatCoins(p.priceCoins)}</span>`;
         if (p.type === 'ad_or_coins') costLabel = `<span class="text-purple-400"><i class="fa-solid fa-link mr-1"></i>Ad / Paid</span>`;
@@ -1943,7 +1972,7 @@ function renderPrompts() {
         card.innerHTML = `
             ${mediaHTML}
             <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
-                ${p.isPinned ? '<span class="bg-amber-500 text-[8px] font-extrabold text-slate-950 px-2 py-0.5 rounded-full shadow uppercase">Pinned</span>' : ''}
+                ${p.isPinned ? '<span class="bg-amber-500 text-[8px] font-extrabold text-slate-955 px-2 py-0.5 rounded-full shadow uppercase">Pinned</span>' : ''}
             </div>
             <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur text-[8px] px-2.5 py-0.5 rounded-full font-bold text-slate-200 z-10">
                 ${costLabel}
@@ -2119,7 +2148,7 @@ window.filterCategory = function(cat) {
     renderPrompts();
 };
 
-// UPDATED: Modal for Admin Verified Prompts (Includes Ad / Paid Logic safely)
+// Modal for Admin Verified Prompts (Includes Ad / Paid Logic safely)
 window.openPromptDetail = async function(id) {
     const p = window.appState.promptsList.find(item => item.id === id);
     if (!p) return;
@@ -2168,7 +2197,7 @@ window.openPromptDetail = async function(id) {
         }
     }
 
-    // 2. Ad or Coins User Login Requirement Check (Optional, but safe so they keep the unlock status)
+    // 2. Ad or Coins User Login Requirement Check
     if (p.type === 'ad_or_coins' && !hasUnlocked && !isAdmin) {
         if (!window.appState.currentUser) {
             alert("Please log in to unlock this premium content (Free via Ad or Paid).");
