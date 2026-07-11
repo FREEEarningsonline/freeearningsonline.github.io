@@ -34,9 +34,9 @@
         .dark ::-webkit-scrollbar-thumb { background: #1e293b; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-955 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300">
 
-    <div id="authOverlay" class="fixed inset-0 bg-white dark:bg-slate-950 z-50 flex flex-col items-center justify-center">
+    <div id="authOverlay" class="fixed inset-0 bg-white dark:bg-slate-955 z-50 flex flex-col items-center justify-center">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-brand-500 mb-4"></i>
         <h2 class="text-xl font-bold">Verifying Admin Access...</h2>
         <p class="text-sm text-slate-500 mt-2">Please wait.</p>
@@ -52,7 +52,7 @@
                 </a>
             </div>
             
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto flex md:flex-col gap-2 md:gap-0 overflow-x-auto md:overflow-hidden">
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto flex md:flex-col gap-2 md:gap-0 overflow-x-auto md:overflow-hidden scrollbar-none">
                 <button onclick="window.switchTab('prompts')" id="nav-prompts" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-brand-500 text-white transition text-left whitespace-nowrap">
                     <i class="fa-solid fa-layer-group"></i> Manage Prompts
                 </button>
@@ -84,7 +84,7 @@
             </div>
         </aside>
 
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-950">
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-955">
             
             <!-- PROMPTS TAB -->
             <section id="tab-prompts" class="admin-section block space-y-6">
@@ -95,7 +95,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm font-semibold">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm font-semibold">
                     <h3 class="text-lg font-bold mb-4" id="promptFormTitle">Add New Prompt</h3>
                     <form id="promptForm" class="space-y-4">
                         <input type="hidden" id="editPromptId">
@@ -110,53 +110,53 @@
                             </div>
                         </div>
 
-                        <!-- UPDATED: 3 Columns for Media, Thumbnail, and Views -->
+                        <!-- 3 Columns for Media, Thumbnail, and Views -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Main Media (Image / Video .mp4)</label>
                                 <div class="space-y-1">
-                                    <input type="text" id="pImageURL" list="githubImagesList" placeholder="logo.png or video.mp4" required class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
+                                    <input type="text" id="pImageURL" list="githubImagesList" placeholder="logo.png or video.mp4" required class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
                                     <datalist id="githubImagesList"></datalist>
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs text-brand-500 mb-1">Custom Thumbnail (For Videos)</label>
                                 <div class="space-y-1">
-                                    <input type="text" id="pThumbnailURL" list="githubImagesList" placeholder="e.g., thumb.jpg (Optional)" class="w-full bg-slate-100 dark:bg-slate-950 border border-brand-300 dark:border-brand-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans shadow-sm">
+                                    <input type="text" id="pThumbnailURL" list="githubImagesList" placeholder="e.g., thumb.jpg (Optional)" class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans shadow-sm">
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Initial Views Count</label>
-                                <input type="number" id="pInitialViews" value="0" min="0" required class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
+                                <input type="number" id="pInitialViews" value="0" min="0" required class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
                             </div>
                         </div>
                         <span id="githubApiStatus" class="block text-[10px] text-amber-500 font-semibold mt-0"></span>
 
                         <div>
                             <label class="block text-xs text-slate-400 mb-1">Prompt Text / Description</label>
-                            <textarea id="pDescription" rows="4" required class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans"></textarea>
+                            <textarea id="pDescription" rows="4" required class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans"></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Type</label>
-                                <select id="pType" onchange="window.togglePriceField()" class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
+                                <select id="pType" onchange="window.togglePriceField()" class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
                                     <option value="free">Free</option>
                                     <option value="paid">Paid</option>
                                 </select>
                             </div>
                             <div id="priceFieldContainer" class="hidden">
                                 <label class="block text-xs text-slate-400 mb-1">Coins Price</label>
-                                <input type="number" id="pPrice" value="0" class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
+                                <input type="number" id="pPrice" value="0" class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition font-sans">
                             </div>
                             <div class="flex items-center gap-4 mt-6">
-                                <label class="flex items-center gap-2 cursor-pointer text-sm">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs sm:text-sm">
                                     <input type="checkbox" id="pTrending" class="rounded border-slate-300 dark:border-slate-800 text-brand-500 focus:ring-0">
-                                    <span class="text-slate-600 dark:text-slate-300">Trending</span>
+                                    <span class="text-slate-600 dark:text-slate-300 font-bold">Trending</span>
                                 </label>
-                                <label class="flex items-center gap-2 cursor-pointer text-sm">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs sm:text-sm">
                                     <input type="checkbox" id="pPinned" class="rounded border-slate-300 dark:border-slate-800 text-brand-500 focus:ring-0">
-                                    <span class="text-slate-600 dark:text-slate-300">Pinned</span>
+                                    <span class="text-slate-600 dark:text-slate-300 font-bold">Pinned</span>
                                 </label>
                             </div>
                         </div>
@@ -170,7 +170,7 @@
                     <div class="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6">
                         <h4 class="text-sm font-bold mb-4">Active Prompts in Database</h4>
                         <div class="overflow-x-auto text-xs">
-                            <table class="w-full text-left">
+                            <table class="w-full text-left whitespace-nowrap">
                                 <thead class="bg-slate-100 dark:bg-slate-950 text-slate-500 uppercase text-[10px]">
                                     <tr>
                                         <th class="px-4 py-3">Title</th>
@@ -190,8 +190,7 @@
 
             <!-- BLOGS TAB -->
             <section id="tab-blogs" class="admin-section hidden space-y-6">
-                <!-- Blog content same as before -->
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm font-semibold">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm font-semibold">
                     <h3 class="text-lg font-bold mb-4" id="blogFormTitle">Publish New Blog</h3>
                     <form id="blogForm" class="space-y-4">
                         <input type="hidden" id="editBlogId">
@@ -202,24 +201,24 @@
                             </div>
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">SEO Keywords</label>
-                                <input type="text" id="bKeywords" placeholder="AI, Midjourney, Tips" required class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
+                                <input type="text" id="bKeywords" placeholder="AI, Midjourney, Tips" required class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
                             </div>
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Top Image Filename</label>
-                                <input type="text" id="bImageURL" list="githubImagesList" required class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
+                                <input type="text" id="bImageURL" list="githubImagesList" required class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
                             </div>
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Center Image Filename (Optional)</label>
-                                <input type="text" id="bCenterImageURL" list="githubImagesList" class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
+                                <input type="text" id="bCenterImageURL" list="githubImagesList" class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
                             </div>
                         </div>
                         <div>
                             <label class="block text-xs text-slate-400 mb-1">Meta Description / Excerpt</label>
-                            <input type="text" id="bExcerpt" required class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
+                            <input type="text" id="bExcerpt" required class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
                         </div>
                         <div>
                             <label class="block text-xs text-slate-400 mb-1">Blog Content (Use # for H2, ## for H3)</label>
-                            <textarea id="bContent" rows="10" required class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition"></textarea>
+                            <textarea id="bContent" rows="10" required class="w-full bg-slate-100 dark:bg-slate-955 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition"></textarea>
                         </div>
                         <div class="flex gap-2">
                             <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition">Publish Post</button>
@@ -228,7 +227,7 @@
                     </form>
                     <div class="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6">
                         <div class="overflow-x-auto text-xs">
-                            <table class="w-full text-left">
+                            <table class="w-full text-left whitespace-nowrap">
                                 <tbody id="adminBlogsListTable"></tbody>
                             </table>
                         </div>
@@ -238,8 +237,7 @@
 
             <!-- CATEGORIES TAB -->
             <section id="tab-categories" class="admin-section hidden space-y-6">
-                <!-- Categories content same as before -->
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <h3 class="text-lg font-bold mb-2">Manage Categories</h3>
                     <div class="flex gap-2 max-w-md mb-6 font-medium">
                         <input type="text" id="newCategoryInput" placeholder="e.g. Couples, Islamic" class="flex-1 bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500 text-slate-955 dark:text-white transition">
@@ -253,7 +251,7 @@
 
             <!-- COMMUNITY TAB -->
             <section id="tab-community" class="admin-section hidden space-y-6">
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div class="flex items-center gap-3 mb-2">
                         <i class="fa-solid fa-bullhorn text-2xl text-amber-500"></i>
                         <h3 class="text-lg font-bold">Global Community Announcements</h3>
@@ -270,10 +268,10 @@
 
             <!-- PAYMENTS TAB -->
             <section id="tab-payments" class="admin-section hidden space-y-6">
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <h3 class="text-lg font-bold mb-4">Pending Wallet Submissions</h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
                             <tbody id="adminPaymentsList">
                                 <tr><td colspan="6" class="text-center py-6 text-slate-500">Loading...</td></tr>
                             </tbody>
@@ -282,9 +280,9 @@
                 </div>
             </section>
 
-            <!-- ADSENSE & AI CONFIG TABS... -->
+            <!-- ADSENSE & AI CONFIG TABS -->
             <section id="tab-ads" class="admin-section hidden space-y-6">
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <h3 class="text-lg font-bold mb-2">AdSense Configuration</h3>
                     <div class="space-y-4 font-medium max-w-3xl">
                         <div>
@@ -305,7 +303,7 @@
             </section>
             
             <section id="tab-aiconfig" class="admin-section hidden space-y-6">
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <h3 class="text-lg font-bold mb-2">Secure AI Configuration</h3>
                     <div class="space-y-4 max-w-md font-medium">
                         <div>
@@ -400,6 +398,29 @@
         let blogsList = [];
         let categoriesList = [];
 
+        // Dynamic categories normalizer to parse nested objects or arrays into flat arrays seamlessly
+        function normalizeCategories(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) {
+                return val.filter(Boolean).map(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        return item.name || item.title || item.value || '';
+                    }
+                    return String(item).trim();
+                }).filter(Boolean);
+            }
+            if (typeof val === 'object') {
+                return Object.keys(val).map(key => {
+                    const item = val[key];
+                    if (item && typeof item === 'object') {
+                        return item.name || item.title || item.value || key;
+                    }
+                    return String(item).trim();
+                }).filter(Boolean);
+            }
+            return [];
+        }
+
         onAuthStateChanged(auth, (user) => {
             const overlay = document.getElementById('authOverlay');
             const dashboard = document.getElementById('adminDashboard');
@@ -423,7 +444,7 @@
 
             onValue(ref(db, 'categories'), (snapshot) => {
                 if (snapshot.exists()) {
-                    categoriesList = snapshot.val();
+                    categoriesList = normalizeCategories(snapshot.val());
                 } else {
                     categoriesList = ["Viral", "IG Trend", "Boys", "Girls"];
                     set(ref(db, 'categories'), categoriesList);
@@ -543,10 +564,11 @@
             container.innerHTML = '';
             categoriesList.forEach((cat, index) => {
                 const span = document.createElement('span');
-                span.className = "flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-semibold";
+                span.className = "flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-semibold text-xs sm:text-sm";
                 span.innerHTML = `
                     <span>${cat}</span>
-                    <button onclick="window.deleteCategory(${index})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash-can"></i></button>
+                    <button onclick="window.editCategory(${index})" class="text-blue-500 hover:text-blue-700" title="Edit Category"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button onclick="window.deleteCategory(${index})" class="text-red-500 hover:text-red-700" title="Delete Category"><i class="fa-solid fa-trash-can"></i></button>
                 `;
                 container.appendChild(span);
             });
@@ -563,6 +585,30 @@
             const updated = [...categoriesList, newCatVal];
             await set(ref(db, 'categories'), updated);
             input.value = '';
+        };
+
+        // Added Category Edit functionality
+        window.editCategory = async function(index) {
+            const oldVal = categoriesList[index];
+            const newVal = prompt("Edit Category Name:", oldVal);
+            if (newVal === null) return; // Cancelled by user
+            const trimmed = newVal.trim();
+            if (!trimmed) {
+                alert("Category name cannot be empty.");
+                return;
+            }
+            if (categoriesList.includes(trimmed) && trimmed !== oldVal) {
+                alert("Category already exists.");
+                return;
+            }
+            const updated = [...categoriesList];
+            updated[index] = trimmed;
+            try {
+                await set(ref(db, 'categories'), updated);
+                alert("Category updated successfully!");
+            } catch(err) {
+                alert("Failed to update category: " + err.message);
+            }
         };
 
         window.deleteCategory = async function(index) {
@@ -613,7 +659,6 @@
                 tags: document.getElementById('pCategory').value,
                 imageURL: rawImageUrl,
                 mediaType: mediaTypeFallback,
-                // UPDATED: Save custom thumbnail URL
                 thumbnailURL: document.getElementById('pThumbnailURL') ? document.getElementById('pThumbnailURL').value.trim() : "",
                 views: parseInt(document.getElementById('pInitialViews').value) || 0,
                 description: document.getElementById('pDescription').value.trim(),
@@ -654,7 +699,6 @@
                 document.getElementById('pCategory').value = p.tags || 'Viral';
                 document.getElementById('pDescription').value = p.description;
                 document.getElementById('pImageURL').value = p.imageURL || '';
-                // UPDATED: Load custom thumbnail into input
                 if(document.getElementById('pThumbnailURL')) document.getElementById('pThumbnailURL').value = p.thumbnailURL || '';
                 
                 document.getElementById('pType').value = p.type || 'free';
