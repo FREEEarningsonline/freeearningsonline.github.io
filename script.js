@@ -1,4 +1,3 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, set, get, update, push, child, onValue, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -38,7 +37,7 @@ function resolveMediaSrc(mediaVal) {
     if (!mediaVal) {
         return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"; 
     }
-    if (mediaVal.match(/\.(mp4|webm|ogg)$/i)) {
+    if (typeof mediaVal === 'string' && mediaVal.match(/\.(mp4|webm|ogg)$/i)) {
         if (mediaVal.startsWith("http://") || mediaVal.startsWith("https://") || mediaVal.startsWith("data:")) {
             return mediaVal;
         }
@@ -47,7 +46,7 @@ function resolveMediaSrc(mediaVal) {
         }
         return "/videos/" + mediaVal;
     }
-    if (mediaVal.startsWith("http://") || mediaVal.startsWith("https://") || mediaVal.startsWith("data:")) {
+    if (typeof mediaVal === 'string' && (mediaVal.startsWith("http://") || mediaVal.startsWith("https://") || mediaVal.startsWith("data:"))) {
         return mediaVal;
     }
     return GITHUB_BASE_URL + mediaVal;
@@ -130,27 +129,22 @@ function updateThemeIcons() {
     const isDark = document.documentElement.classList.contains('dark');
     const deskIcon = document.getElementById('themeIcon');
     const mobIcon = document.getElementById('mobileThemeIcon');
-    if (deskIcon && mobIcon) {
-        if (isDark) {
-            deskIcon.className = "fa-solid fa-sun text-amber-400";
-            mobIcon.className = "fa-solid fa-sun text-amber-400";
-        } else {
-            deskIcon.className = "fa-solid fa-moon text-slate-500";
-            mobIcon.className = "fa-solid fa-moon text-slate-500";
-        }
+    if (deskIcon) {
+        deskIcon.className = isDark ? "fa-solid fa-sun text-amber-400" : "fa-solid fa-moon text-amber-500";
+    }
+    if (mobIcon) {
+        mobIcon.className = isDark ? "fa-solid fa-sun text-amber-400" : "fa-solid fa-moon text-amber-500";
     }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
     updateThemeIcons();
 
-    // ADVANCED SEARCH: Real-time search listeners
     const dSearch = document.getElementById('desktopSearch');
     const mSearch = document.getElementById('mobileSearch');
     if (dSearch) dSearch.addEventListener('input', window.handleSearch);
     if (mSearch) mSearch.addEventListener('input', window.handleSearch);
 
-    // Dynamic file name display for user upload
     const uImageFile = document.getElementById('uImageFile');
     const uImageFileName = document.getElementById('uImageFileName');
     if (uImageFile && uImageFileName) {
@@ -159,7 +153,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 uImageFileName.innerText = e.target.files[0].name;
                 uImageFileName.classList.add('text-purple-500');
             } else {
-                uImageFileName.innerText = "Click to select an image...";
+                uImageFileName.innerText = "Click or Drag to select an image...";
                 uImageFileName.classList.remove('text-purple-500');
             }
         });
@@ -176,7 +170,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const sharedPromptId = urlParams.get('prompt');
     const sharedBlogId = urlParams.get('blog');
 
-    // Deep Linking logic for Both Admin and User Prompts
     if (sharedPromptId) {
         let attempts = 0;
         const checkInterval = setInterval(() => {
@@ -196,7 +189,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Stop checking after 10 seconds to prevent infinite loop
             if (attempts > 20) {
                 clearInterval(checkInterval);
             }
@@ -251,7 +243,7 @@ window.handleBackAction = handleBackAction;
 
 function toggleMobileMenu() {
     const menu = document.getElementById('mobileMenu');
-    menu.classList.toggle('translate-x-full');
+    if (menu) menu.classList.toggle('translate-x-full');
 }
 window.toggleMobileMenu = toggleMobileMenu;
 
@@ -261,7 +253,6 @@ function switchTab(tabId, isBack = false) {
         window.history.pushState({ type: 'tab', value: tabId }, "");
     }
 
-    // Hide all major sections first
     const sections = [
         'homeExclusiveContent', 
         'categoryFiltersContainer',
@@ -280,7 +271,6 @@ function switchTab(tabId, isBack = false) {
 
     window.appState.viewMode = tabId; 
 
-    // Show specific sections based on requested tab
     if (tabId === 'home') {
         ['homeExclusiveContent', 'categoryFiltersContainer', 'promptsSection', 'userPromptsDisplaySection'].forEach(id => {
             const el = document.getElementById(id);
@@ -355,12 +345,14 @@ window.handleSearch = function() {
 function openModal(id) {
     window.appState.navigationStack.push({ type: 'modal', value: id });
     window.history.pushState({ type: 'modal', value: id }, "");
-    document.getElementById(id).classList.remove('hidden');
+    const modalEl = document.getElementById(id);
+    if(modalEl) modalEl.classList.remove('hidden');
 }
 window.openModal = openModal;
 
 function closeModal(id, isBack = false) {
-    document.getElementById(id).classList.add('hidden');
+    const modalEl = document.getElementById(id);
+    if(modalEl) modalEl.classList.add('hidden');
     if (!isBack) {
         window.appState.navigationStack = window.appState.navigationStack.filter(item => !(item.type === 'modal' && item.value === id));
     }
@@ -392,30 +384,30 @@ function toggleAdminTab(tab) {
     const adsTab = document.getElementById('adminAdsTab'); 
     const commTab = document.getElementById('adminCommunityTab');
 
-    addTab.classList.add('hidden');
-    blogTab.classList.add('hidden');
-    catTab.classList.add('hidden');
-    payTab.classList.add('hidden');
-    aiTab.classList.add('hidden');
+    if(addTab) addTab.classList.add('hidden');
+    if(blogTab) blogTab.classList.add('hidden');
+    if(catTab) catTab.classList.add('hidden');
+    if(payTab) payTab.classList.add('hidden');
+    if(aiTab) aiTab.classList.add('hidden');
     if(adsTab) adsTab.classList.add('hidden');
     if(commTab) commTab.classList.add('hidden');
 
-    if (tab === 'addPrompt') {
+    if (tab === 'addPrompt' && addTab) {
         addTab.classList.remove('hidden');
-    } else if (tab === 'blogs') {
+    } else if (tab === 'blogs' && blogTab) {
         blogTab.classList.remove('hidden');
         if (typeof window.renderAdminBlogsList === 'function') {
             window.renderAdminBlogsList();
         }
-    } else if (tab === 'categories') {
+    } else if (tab === 'categories' && catTab) {
         catTab.classList.remove('hidden');
-    } else if (tab === 'aiConfig') {
+    } else if (tab === 'aiConfig' && aiTab) {
         aiTab.classList.remove('hidden');
-    } else if (tab === 'adsConfig') {
-        if(adsTab) adsTab.classList.remove('hidden');
-    } else if (tab === 'community') {
-        if(commTab) commTab.classList.remove('hidden');
-    } else {
+    } else if (tab === 'adsConfig' && adsTab) {
+        adsTab.classList.remove('hidden');
+    } else if (tab === 'community' && commTab) {
+        commTab.classList.remove('hidden');
+    } else if (payTab) {
         payTab.classList.remove('hidden');
     }
 }
@@ -428,22 +420,22 @@ function switchHistoryTab(type) {
     const tblDeb = document.getElementById('tableDebits');
 
     if (type === 'credits') {
-        btnCred.className = "px-3 py-1.5 rounded-lg bg-brand-500 text-white text-xs font-bold transition";
-        btnDeb.className = "px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-955 text-slate-500 dark:text-slate-400 text-xs font-bold transition hover:bg-slate-200 dark:hover:bg-slate-900";
-        tblCred.classList.remove('hidden');
-        tblDeb.classList.add('hidden');
+        if(btnCred) btnCred.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-brand-500 text-white text-xs font-bold transition shadow-sm";
+        if(btnDeb) btnDeb.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold transition";
+        if(tblCred) tblCred.classList.remove('hidden');
+        if(tblDeb) tblDeb.classList.add('hidden');
     } else {
-        btnCred.className = "px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-955 text-slate-500 dark:text-slate-400 text-xs font-bold transition hover:bg-slate-200 dark:hover:bg-slate-900";
-        btnDeb.className = "px-3 py-1.5 rounded-lg bg-brand-500 text-white text-xs font-bold transition";
-        tblCred.classList.add('hidden');
-        tblDeb.classList.remove('hidden');
+        if(btnCred) btnCred.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold transition";
+        if(btnDeb) btnDeb.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-brand-500 text-white text-xs font-bold transition shadow-sm";
+        if(tblCred) tblCred.classList.add('hidden');
+        if(tblDeb) tblDeb.classList.remove('hidden');
     }
 }
 window.switchHistoryTab = switchHistoryTab;
 
 function toggleAiPanel() {
     const panel = document.getElementById('aiPanel');
-    panel.classList.toggle('hidden');
+    if(panel) panel.classList.toggle('hidden');
 }
 window.toggleAiPanel = toggleAiPanel;
 
@@ -459,10 +451,15 @@ window.closeRequestModal = closeRequestModal;
 
 function openAuthModal(mode) {
     window.appState.isLoginMode = mode === 'login';
-    document.getElementById('authTitle').innerText = window.appState.isLoginMode ? "Login" : "Sign Up / Register";
-    document.getElementById('authSubmitBtn').innerText = window.appState.isLoginMode ? "Login" : "Register";
-    document.getElementById('authToggleText').innerText = window.appState.isLoginMode ? "Don't have an account?" : "Already have an account?";
-    document.getElementById('authToggleBtn').innerText = window.appState.isLoginMode ? "Register" : "Login";
+    const title = document.getElementById('authTitle');
+    const btn = document.getElementById('authSubmitBtn');
+    const txt = document.getElementById('authToggleText');
+    const toggleBtn = document.getElementById('authToggleBtn');
+
+    if(title) title.innerText = window.appState.isLoginMode ? "Secure Login" : "Sign Up / Register";
+    if(btn) btn.innerText = window.appState.isLoginMode ? "Login to Account" : "Register Now";
+    if(txt) txt.innerText = window.appState.isLoginMode ? "Don't have an account?" : "Already have an account?";
+    if(toggleBtn) toggleBtn.innerText = window.appState.isLoginMode ? "Register Now" : "Login";
     window.openModal('authModal');
 }
 window.openAuthModal = openAuthModal;
@@ -479,10 +476,11 @@ window.toggleAuthMode = toggleAuthMode;
 
 function closePromptDetailModal() {
     window.closeModal('promptDetailModal');
-    document.getElementById('aiOutputContainer').classList.add('hidden');
-    document.getElementById('aiPanel').classList.add('hidden');
+    const aiOut = document.getElementById('aiOutputContainer');
+    const aiPan = document.getElementById('aiPanel');
+    if(aiOut) aiOut.classList.add('hidden');
+    if(aiPan) aiPan.classList.add('hidden');
     
-    // Stop modal video playback safely
     const videoEl = document.getElementById('detailVideoEl');
     const thumbOverlay = document.getElementById('detailThumbOverlay');
     
@@ -495,13 +493,11 @@ function closePromptDetailModal() {
         thumbOverlay.classList.remove('hidden');
     }
     
-    // Clear user ads inside modal when closed
     const modalUserAdTop = document.getElementById('modalUserAdTop');
     const modalUserAdBottom = document.getElementById('modalUserAdBottom');
     if(modalUserAdTop) { modalUserAdTop.innerHTML = ''; modalUserAdTop.classList.add('hidden'); }
     if(modalUserAdBottom) { modalUserAdBottom.innerHTML = ''; modalUserAdBottom.classList.add('hidden'); }
 
-    // Reset lock overlays
     const adLockedOverlay = document.getElementById('adLockedOverlay');
     if (adLockedOverlay) adLockedOverlay.classList.add('hidden');
 
@@ -511,31 +507,44 @@ function closePromptDetailModal() {
 window.closePromptDetailModal = closePromptDetailModal;
 
 function calculateExchange() {
-    const pkr = parseFloat(document.getElementById('pkrAmount').value) || 0;
-    document.getElementById('coinsResult').innerText = (pkr * 10000).toLocaleString();
+    const pkrInput = document.getElementById('pkrAmount');
+    const resultSpan = document.getElementById('coinsResult');
+    if (pkrInput && resultSpan) {
+        const pkr = parseFloat(pkrInput.value) || 0;
+        resultSpan.innerText = (pkr * 10000).toLocaleString();
+    }
 }
 window.calculateExchange = calculateExchange;
 
 function togglePriceField() {
-    const type = document.getElementById('pType').value;
-    if (type === 'paid' || type === 'ad_or_coins') {
-        document.getElementById('priceFieldContainer').classList.remove('hidden');
-    } else {
-        document.getElementById('priceFieldContainer').classList.add('hidden');
+    const pType = document.getElementById('pType');
+    const priceContainer = document.getElementById('priceFieldContainer');
+    if (pType && priceContainer) {
+        const type = pType.value;
+        if (type === 'paid' || type === 'ad_or_coins') {
+            priceContainer.classList.remove('hidden');
+        } else {
+            priceContainer.classList.add('hidden');
+        }
     }
 }
 window.togglePriceField = togglePriceField;
 
 function resetForm() {
-    document.getElementById('promptForm').reset();
-    document.getElementById('editPromptId').value = '';
-    document.getElementById('priceFieldContainer').classList.add('hidden');
+    const pForm = document.getElementById('promptForm');
+    const editId = document.getElementById('editPromptId');
+    const priceContainer = document.getElementById('priceFieldContainer');
+    if(pForm) pForm.reset();
+    if(editId) editId.value = '';
+    if(priceContainer) priceContainer.classList.add('hidden');
 }
 window.resetForm = resetForm;
 
 function resetBlogForm() {
-    document.getElementById('blogForm').reset();
-    document.getElementById('editBlogId').value = '';
+    const bForm = document.getElementById('blogForm');
+    const editId = document.getElementById('editBlogId');
+    if(bForm) bForm.reset();
+    if(editId) editId.value = '';
 }
 window.resetBlogForm = resetBlogForm;
 
@@ -594,7 +603,9 @@ function sharePrompt() {
 window.sharePrompt = sharePrompt;
 
 function shareBlog() {
-    const openedTitle = document.getElementById('blogDetailTitle').innerText;
+    const openedTitleEl = document.getElementById('blogDetailTitle');
+    if (!openedTitleEl) return;
+    const openedTitle = openedTitleEl.innerText;
     const currentBlog = window.appState.blogsList.find(b => b.title === openedTitle);
     if (!currentBlog) return;
     
@@ -612,34 +623,6 @@ function shareBlog() {
     }
 }
 window.shareBlog = shareBlog;
-
-function openInfoModal(type) {
-    const title = document.getElementById('infoModalTitle');
-    const content = document.getElementById('infoModalContent');
-    if (type === 'about') {
-        title.innerText = "About PromptKaro";
-        content.innerHTML = `<p>Welcome to <strong>PromptKaro</strong>, your ultimate platform for exploring, sharing, and unlocking trending AI templates.</p>`;
-    } else if (type === 'contact') {
-        title.innerText = "Contact Us";
-        content.innerHTML = `<p>Have issues or business inquiries? kazimmustafa38@gmail.com</p>`;
-    } else if (type === 'dmca') {
-        title.innerText = "DMCA Policy";
-        content.innerHTML = `<p>At PromptKaro, we respect intellectual property rights.</p>`;
-    } else if (type === 'privacy') {
-        title.innerText = "Privacy Policy";
-        content.innerHTML = `<p>We respect the privacy of our visitors.</p>`;
-    } else if (type === 'terms') {
-        title.innerText = "Terms of Service";
-        content.innerHTML = `<p>These terms and conditions outline the rules and regulations.</p>`;
-    }
-    window.openModal('infoModal');
-}
-window.openInfoModal = openInfoModal;
-
-function closeInfoModal() {
-    window.closeModal('infoModal');
-}
-window.closeInfoModal = closeInfoModal;
 
 function openCommunityDialog() {
     if(window.latestAdminTimestamp) {
@@ -659,6 +642,15 @@ function closeCommunityChat() {
     window.closeModal('communityChatModal');
 }
 window.closeCommunityChat = closeCommunityChat;
+
+// GLOBAL FIX: Attach buyPrompt to Window to fix "buyPrompt is not defined" error
+window.buyPrompt = function(promptId) {
+    if (typeof window.openPromptDetail === 'function') {
+        window.openPromptDetail(promptId);
+    } else {
+        console.error("openPromptDetail function not available!");
+    }
+};
 
 // ==========================================
 // PART 2: MODULAR ASYNC BACKEND FIREBASE CODE
@@ -752,7 +744,8 @@ if (purchaseFormEl) {
             });
             alert("Deposit request submitted successfully! Waiting for approval.");
             e.target.reset();
-            document.getElementById('coinsResult').innerText = "0";
+            const coinsRes = document.getElementById('coinsResult');
+            if(coinsRes) coinsRes.innerText = "0";
         } catch (err) {
             alert("Submission failed: " + err.message);
         } finally {
@@ -862,7 +855,7 @@ if (userUploadForm) {
         }
 
         const fileInput = document.getElementById('uImageFile');
-        if (!fileInput.files.length) {
+        if (!fileInput || !fileInput.files.length) {
             alert("Please select an image to upload.");
             return;
         }
@@ -920,8 +913,11 @@ if (userUploadForm) {
 
             alert("Prompt Successfully Uploaded! 50,000 coins deducted.");
             userUploadForm.reset();
-            document.getElementById('uImageFileName').innerText = "Click to select an image...";
-            document.getElementById('uImageFileName').classList.remove('text-purple-500');
+            const fileLbl = document.getElementById('uImageFileName');
+            if(fileLbl) {
+                fileLbl.innerText = "Click or Drag to select an image...";
+                fileLbl.classList.remove('text-purple-500');
+            }
             window.switchTab('home');
 
         } catch (err) {
@@ -933,16 +929,26 @@ if (userUploadForm) {
     });
 }
 
+// UPDATED COIN FORMATTER LOGIC (M for Millions, K for Thousands)
 function formatCoins(num) {
     const val = parseInt(num) || 0;
+    
+    // 1 Million (1,000,000) ya us se zyada par "M" show karega
+    if (val >= 1000000) {
+        const million = val / 1000000;
+        return million.toFixed(2) + 'M'; // e.g. 1,068,700 -> 1.07M
+    }
+    
+    // 10 Thousand (10,000) se lekar 999,999 tak "K" show karega
     if (val >= 10000) {
         const divided = val / 1000;
         if (val % 1000 === 0) {
             return Math.floor(divided) + 'K';
         } else {
-            return divided.toFixed(1) + 'K';
+            return divided.toFixed(1) + 'K'; // e.g. 50,000 -> 50K
         }
     }
+    
     return val.toLocaleString();
 }
 window.formatCoins = formatCoins;
@@ -992,10 +998,10 @@ onValue(adsRef, (snapshot) => {
 
 window.saveAdsConfig = async function() {
     const payload = {
-        top: document.getElementById('adDisplayTop').value,
-        center: document.getElementById('adArticleCenter').value,
-        multiplex: document.getElementById('adMultiplexBottom').value,
-        bottom: document.getElementById('adDisplayBottom').value,
+        top: document.getElementById('adDisplayTop')?.value || '',
+        center: document.getElementById('adArticleCenter')?.value || '',
+        multiplex: document.getElementById('adMultiplexBottom')?.value || '',
+        bottom: document.getElementById('adDisplayBottom')?.value || '',
     };
     try {
         await set(ref(db, 'settings/ads'), payload);
@@ -1083,7 +1089,7 @@ function renderChatMessages() {
     const area = document.getElementById('chatMessagesArea');
     if(!area) return;
     
-    area.innerHTML = '<div class="text-center my-4"><span class="bg-amber-100 text-amber-800 text-[10px] px-3 py-1 rounded-lg shadow-sm font-bold">Welcome to PromptKaro Global Chat! Note: Be respectful.</span></div>';
+    area.innerHTML = '<div class="text-center my-2"><span class="bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-300 text-[10px] px-3 py-1 rounded-lg shadow-sm font-bold">Welcome to PromptKaro Global Chat! Note: Be respectful.</span></div>';
     
     const currentUid = window.appState.currentUser ? window.appState.currentUser.uid : null;
 
@@ -1134,6 +1140,7 @@ window.sendChatMessage = async function() {
     }
     
     const input = document.getElementById('chatInput');
+    if(!input) return;
     const text = input.value.trim();
     if (!text) return;
     
@@ -1159,6 +1166,7 @@ window.sendChatMessage = async function() {
 
 window.sendAdminAnnouncement = async function() {
     const input = document.getElementById('adminAnnouncementInput');
+    if(!input) return;
     const text = input.value.trim();
     if(!text) return;
     
@@ -1195,64 +1203,6 @@ onValue(dbBlogsRef, (snapshot) => {
         window.renderHomeBlogSlider();
     }
 });
-
-window.homeBlogScrollInterval = null;
-window.startHomeBlogAutoScroll = function() {
-    if(window.homeBlogScrollInterval) {
-        clearInterval(window.homeBlogScrollInterval);
-    }
-    window.homeBlogScrollInterval = setInterval(() => {
-        const container = document.getElementById('homeBlogSliderContainer');
-        if(!container) return;
-        const maxScrollLeft = container.scrollWidth - container.clientWidth;
-        if(container.scrollLeft >= maxScrollLeft - 10) {
-            container.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-            const scrollAmount = window.innerWidth < 768 ? window.innerWidth * 0.85 : 300; 
-            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-    }, 50000); 
-};
-
-window.renderHomeBlogSlider = function() {
-    const container = document.getElementById('homeBlogSliderContainer');
-    if(!container) return;
-    container.innerHTML = '';
-
-    const sorted = [...window.appState.blogsList].sort((a,b) => b.createdAt - a.createdAt).slice(0, 4);
-
-    if(sorted.length === 0) {
-        container.innerHTML = '<div class="text-slate-500 text-sm py-4 w-full text-center">No latest blogs found.</div>';
-        return;
-    }
-
-    sorted.forEach(blog => {
-        const finalImg = window.resolveImageSrc(blog.imageURL);
-        const dateStr = new Date(blog.createdAt).toLocaleDateString();
-        const blogCat = blog.category || 'AI Guide';
-
-        const card = document.createElement('article');
-        card.className = "snap-start shrink-0 w-[85%] md:w-[45%] lg:w-[30%] bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col transition hover:shadow-md cursor-pointer";
-        card.onclick = () => window.openBlogDetail(blog.id);
-
-        card.innerHTML = `
-            <img src="${finalImg}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';" alt="${blog.title}" class="w-full h-36 object-cover">
-            <div class="p-4 flex-grow flex flex-col justify-between space-y-2">
-                <div class="space-y-1.5">
-                    <span class="text-[9px] bg-brand-500/10 text-brand-500 font-bold px-2 py-0.5 rounded-full uppercase">${blogCat}</span>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug">${blog.title}</h3>
-                </div>
-                <div class="flex justify-between items-center text-[10px] text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
-                    <span><i class="fa-regular fa-calendar mr-1"></i>${dateStr}</span>
-                    <span class="font-bold text-brand-500">Read ➔</span>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-
-    window.startHomeBlogAutoScroll();
-};
 
 function renderBlogs() {
     const container = document.getElementById('blogsContainer');
@@ -1363,7 +1313,7 @@ window.filterBlogCategory = function(cat) {
 }
 
 function parseSEOContent(text) {
-    if (!text.trim()) return '';
+    if (!text || !text.trim()) return '';
     if (text.startsWith('### ')) return `<h4 class="text-md font-bold mt-4 mb-2 text-slate-800 dark:text-slate-200">${text.substring(4)}</h4>`;
     if (text.startsWith('## ')) return `<h3 class="text-lg font-bold mt-5 mb-2 text-brand-500">${text.substring(3)}</h3>`;
     if (text.startsWith('# ')) return `<h2 class="text-xl font-extrabold mt-6 mb-3 text-slate-900 dark:text-white">${text.substring(2)}</h2>`;
@@ -1399,7 +1349,7 @@ window.openBlogDetail = function(id) {
         blogDetailMeta.innerText = `Published: ${dateStr} | Author: ${blog.author || 'Nazim Mustafa'}`;
     }
     
-    const paragraphs = blog.content.split('\n').filter(p => p.trim());
+    const paragraphs = (blog.content || '').split('\n').filter(p => p.trim());
     const midIndex = Math.ceil(paragraphs.length / 2);
     
     const topHtml = paragraphs.slice(0, midIndex).map(p => parseSEOContent(p)).join('');
@@ -1501,14 +1451,14 @@ if (blogFormEl) {
 window.editBlog = function(id) {
     const blog = window.appState.blogsList.find(b => b.id === id);
     if (blog) {
-        document.getElementById('editBlogId').value = blog.id;
-        document.getElementById('bTitle').value = blog.title;
-        document.getElementById('bCategory').value = blog.category || '';
-        document.getElementById('bKeywords').value = blog.keywords || '';
-        document.getElementById('bImageURL').value = blog.imageURL || '';
-        document.getElementById('bCenterImageURL').value = blog.centerImageURL || '';
-        document.getElementById('bExcerpt').value = blog.excerpt || '';
-        document.getElementById('bContent').value = blog.content || '';
+        if(document.getElementById('editBlogId')) document.getElementById('editBlogId').value = blog.id;
+        if(document.getElementById('bTitle')) document.getElementById('bTitle').value = blog.title;
+        if(document.getElementById('bCategory')) document.getElementById('bCategory').value = blog.category || '';
+        if(document.getElementById('bKeywords')) document.getElementById('bKeywords').value = blog.keywords || '';
+        if(document.getElementById('bImageURL')) document.getElementById('bImageURL').value = blog.imageURL || '';
+        if(document.getElementById('bCenterImageURL')) document.getElementById('bCenterImageURL').value = blog.centerImageURL || '';
+        if(document.getElementById('bExcerpt')) document.getElementById('bExcerpt').value = blog.excerpt || '';
+        if(document.getElementById('bContent')) document.getElementById('bContent').value = blog.content || '';
 
         window.toggleAdminTab('blogs');
     }
@@ -1533,12 +1483,8 @@ function updateAuthUI(isLoggedIn, email = '', coins = 0) {
 
     const formattedValue = formatCoins(coins);
 
-    if(dCoin) {
-        dCoin.innerText = formattedValue;
-    }
-    if(mCoin) {
-        mCoin.innerText = formattedValue;
-    }
+    if(dCoin) dCoin.innerText = formattedValue;
+    if(mCoin) mCoin.innerText = formattedValue;
     
     document.querySelectorAll('.walletCoinTotal').forEach(el => {
         if(el) el.innerText = formattedValue;
@@ -1577,12 +1523,15 @@ onAuthStateChanged(auth, async (user) => {
             window.appState.currentUserData = data;
             if (data) {
                 window.updateAuthUI(true, user.email, data.coins || 0);
+                const adminContainer = document.getElementById('adminBtnContainer');
+                const mobAdminContainer = document.getElementById('mobileAdminBtn');
+
                 if (user.email === 'kazimmustafa38@gmail.com') {
-                    document.getElementById('adminBtnContainer').classList.remove('hidden');
-                    document.getElementById('mobileAdminBtn').classList.remove('hidden');
+                    if(adminContainer) adminContainer.classList.remove('hidden');
+                    if(mobAdminContainer) mobAdminContainer.classList.remove('hidden');
                 } else {
-                    document.getElementById('adminBtnContainer').classList.add('hidden');
-                    document.getElementById('mobileAdminBtn').classList.add('hidden');
+                    if(adminContainer) adminContainer.classList.add('hidden');
+                    if(mobAdminContainer) mobAdminContainer.classList.add('hidden');
                 }
             }
         });
@@ -1593,10 +1542,15 @@ onAuthStateChanged(auth, async (user) => {
         window.appState.currentUser = null;
         window.appState.currentUserData = null;
         window.updateAuthUI(false);
-        document.getElementById('adminBtnContainer').classList.add('hidden');
-        document.getElementById('mobileAdminBtn').classList.add('hidden');
-        document.getElementById('userTransactionsList').innerHTML = '<tr><td colspan="4" class="text-center py-4 text-slate-400">Please login to view history.</td></tr>';
-        document.getElementById('userPurchaseList').innerHTML = '<tr><td colspan="3" class="text-center py-4 text-slate-400">Please login to view history.</td></tr>';
+        const adminContainer = document.getElementById('adminBtnContainer');
+        const mobAdminContainer = document.getElementById('mobileAdminBtn');
+        if(adminContainer) adminContainer.classList.add('hidden');
+        if(mobAdminContainer) mobAdminContainer.classList.add('hidden');
+        
+        const txList = document.getElementById('userTransactionsList');
+        const purList = document.getElementById('userPurchaseList');
+        if(txList) txList.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-slate-400">Please login to view history.</td></tr>';
+        if(purList) purList.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-slate-400">Please login to view history.</td></tr>';
     }
 });
 
@@ -1646,8 +1600,8 @@ function renderCategoryPills(categories) {
         
         const isActive = window.appState.currentFilter === filterVal;
         btn.className = isActive 
-            ? "category-btn bg-brand-500 text-white px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition shadow-sm"
-            : "category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition text-slate-955 dark:text-slate-100";
+            ? "category-btn bg-brand-500 text-white px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition shadow-sm"
+            : "category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition text-slate-900 dark:text-slate-100";
         
         btn.innerText = catName;
         btn.setAttribute('data-category', filterVal);
@@ -1693,8 +1647,8 @@ function renderBlogCategoryPills(categories) {
 
     const allBtn = document.createElement('button');
     allBtn.onclick = () => window.filterBlogCategory('All');
-    allBtn.className = "blog-category-btn bg-brand-500 text-white px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition";
-    allBtn.innerText = "All Posts";
+    allBtn.className = "blog-category-btn bg-brand-500 text-white px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition";
+    allBtn.innerText = "All Articles";
     allBtn.setAttribute('data-blog-category', 'All');
     container.appendChild(allBtn);
 
@@ -1702,7 +1656,7 @@ function renderBlogCategoryPills(categories) {
     uniqueBlogCats.forEach(cat => {
         const btn = document.createElement('button');
         btn.onclick = () => window.filterBlogCategory(cat);
-        btn.className = "blog-category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition text-slate-955 dark:text-slate-100";
+        btn.className = "blog-category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition text-slate-900 dark:text-slate-100";
         btn.innerText = cat;
         btn.setAttribute('data-blog-category', cat);
         container.appendChild(btn);
@@ -1739,8 +1693,8 @@ function syncUserTransactionsHistory() {
                     const tr = document.createElement('tr');
                     tr.className = "border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900";
                     tr.innerHTML = `
-                        <td class="px-4 py-3 font-mono text-[11px] text-brand-500 font-bold">${tx.tid || 'N/A'}</td>
-                        <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-[11px]">${tx.senderInfo || 'N/A'}</td>
+                        <td class="px-4 py-3 font-mono text-xs text-brand-500 font-bold">${tx.tid || 'N/A'}</td>
+                        <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">${tx.senderInfo || 'N/A'}</td>
                         <td class="px-4 py-3 font-bold text-amber-500">${formatCoins(tx.amountCoins)}</td>
                         <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-500/10 text-brand-500">${tx.paymentStatus}</span></td>
                     `;
@@ -1775,7 +1729,7 @@ function syncUserPurchaseHistory() {
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">${log.promptTitle}</td>
                     <td class="px-4 py-3 text-red-500 font-bold">-${formatCoins(log.amountCoins)}</td>
-                    <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-[10px]">${dateStr}</td>
+                    <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">${dateStr}</td>
                 `;
                 list.appendChild(tr);
             }
@@ -1788,7 +1742,6 @@ function syncUserPurchaseHistory() {
     });
 }
 
-// AUTO APPROVAL CHANGED TO 24 HOURS (86400000 ms)
 async function triggerAutoApprovalCheck() {
     try {
         const txRef = ref(db, 'transactions');
@@ -1821,10 +1774,6 @@ setInterval(() => {
     }
 }, 60000);
 
-
-// =====================================
-// DATA FETCHERS & RENDERERS (Admin/Main)
-// =====================================
 const promptsRef = ref(db, 'prompts');
 onValue(promptsRef, (snapshot) => {
     window.appState.promptsList = [];
@@ -1862,6 +1811,9 @@ function renderPrompts() {
     if(!grid) return;
     grid.innerHTML = '';
 
+    // Mobile pe 2 columns (left right), tablet pe 3, desktop pe 4 columns
+    grid.className = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4";
+
     let filtered = window.appState.promptsList;
 
     if (window.appState.viewMode === 'discover') {
@@ -1879,7 +1831,7 @@ function renderPrompts() {
     if (searchVal) {
         filtered = filtered.filter(p => 
             p.title.toLowerCase().includes(searchVal) || 
-            p.description.toLowerCase().includes(searchVal) || 
+            (p.description && p.description.toLowerCase().includes(searchVal)) || 
             (p.tags && p.tags.toLowerCase().includes(searchVal))
         );
     }
@@ -1887,7 +1839,7 @@ function renderPrompts() {
     filtered.sort((a, b) => {
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
-        return b.views - a.views;
+        return (b.views || 0) - (a.views || 0);
     });
 
     if(countText) {
@@ -1950,7 +1902,7 @@ function renderPrompts() {
         if (p.type === 'ad_or_coins') costLabel = `<span class="text-purple-400"><i class="fa-solid fa-link mr-1"></i>Ad / Paid</span>`;
 
         const card = document.createElement('article'); 
-        card.className = "relative overflow-hidden aspect-[2/3] rounded-[1.5rem] bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
+        card.className = "relative overflow-hidden aspect-[2/3] rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
         card.onclick = () => window.openPromptDetail(p.id);
 
         const finalUrl = window.resolveImageSrc(p.imageURL);
@@ -1971,16 +1923,16 @@ function renderPrompts() {
 
         card.innerHTML = `
             ${mediaHTML}
-            <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
-                ${p.isPinned ? '<span class="bg-amber-500 text-[8px] font-extrabold text-slate-955 px-2 py-0.5 rounded-full shadow uppercase">Pinned</span>' : ''}
+            <div class="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1 z-10">
+                ${p.isPinned ? '<span class="bg-amber-500 text-[8px] font-extrabold text-slate-950 px-1.5 py-0.5 rounded-full shadow uppercase">Pinned</span>' : ''}
             </div>
-            <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur text-[8px] px-2.5 py-0.5 rounded-full font-bold text-slate-200 z-10">
+            <span class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-slate-950/80 backdrop-blur text-[8px] px-2 py-0.5 rounded-full font-bold text-slate-200 z-10">
                 ${costLabel}
             </span>
-            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex flex-col justify-end min-h-[50%] rounded-b-[1.5rem] pointer-events-none z-10">
-                <h4 class="text-sm font-bold text-white leading-snug line-clamp-2">${displayTitle}</h4>
-                <div class="flex justify-between items-center mt-1.5 text-[9px] text-slate-300 font-semibold">
-                    <span><i class="fa-regular fa-eye mr-1"></i>${formatCoins(p.views || 0)} views</span>
+            <div class="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex flex-col justify-end min-h-[50%] rounded-b-2xl sm:rounded-b-3xl pointer-events-none z-10">
+                <h3 class="text-xs sm:text-sm font-bold text-white leading-tight line-clamp-2">${displayTitle}</h3>
+                <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-300 font-semibold">
+                    <span><i class="fa-regular fa-eye mr-1"></i>${formatCoins(p.views || 0)}</span>
                     <span>${isVideo ? '<i class="fa-solid fa-video text-brand-400 mr-1"></i>' : ''}#${displayTags}</span>
                 </div>
             </div>
@@ -1998,6 +1950,9 @@ window.renderUserPrompts = function() {
     if(!grid) return;
     grid.innerHTML = '';
 
+    // Mobile pe 2 columns (left right), tablet pe 3, desktop pe 4 columns
+    grid.className = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4";
+
     let filtered = window.appState.userPromptsList;
     
     const searchVal = (document.getElementById('desktopSearch')?.value || document.getElementById('mobileSearch')?.value || '').toLowerCase();
@@ -2005,7 +1960,7 @@ window.renderUserPrompts = function() {
     if (searchVal) {
         filtered = filtered.filter(p => 
             p.title.toLowerCase().includes(searchVal) || 
-            p.description.toLowerCase().includes(searchVal) || 
+            (p.description && p.description.toLowerCase().includes(searchVal)) || 
             (p.tags && p.tags.toLowerCase().includes(searchVal))
         );
     }
@@ -2058,7 +2013,7 @@ window.renderUserPrompts = function() {
 
     paginatedItems.forEach(p => {
         const card = document.createElement('article'); 
-        card.className = "relative overflow-hidden aspect-[2/3] rounded-[1.5rem] bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
+        card.className = "relative overflow-hidden aspect-[2/3] rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
         card.onclick = () => window.openUserPromptDetail(p.id);
 
         const finalUrl = p.imageURL;
@@ -2066,13 +2021,13 @@ window.renderUserPrompts = function() {
 
         card.innerHTML = `
             <img src="${finalUrl}" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <span class="absolute top-3 right-3 bg-purple-600/90 backdrop-blur text-[8px] px-2.5 py-0.5 rounded-full font-bold text-white z-10 shadow-sm">
+            <span class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-purple-600/90 backdrop-blur text-[8px] px-2 py-0.5 rounded-full font-bold text-white z-10 shadow-sm">
                 <i class="fa-solid fa-user"></i> Community
             </span>
-            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex flex-col justify-end min-h-[50%] rounded-b-[1.5rem] pointer-events-none z-10">
-                <h4 class="text-sm font-bold text-white leading-snug line-clamp-2">${displayTitle}</h4>
-                <div class="flex justify-between items-center mt-1.5 text-[9px] text-slate-300 font-semibold">
-                    <span><i class="fa-regular fa-eye mr-1"></i>${formatCoins(p.views || 0)} views</span>
+            <div class="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex flex-col justify-end min-h-[50%] rounded-b-2xl sm:rounded-b-3xl pointer-events-none z-10">
+                <h3 class="text-xs sm:text-sm font-bold text-white leading-tight line-clamp-2">${displayTitle}</h3>
+                <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-300 font-semibold">
+                    <span><i class="fa-regular fa-eye mr-1"></i>${formatCoins(p.views || 0)}</span>
                     <span>#${p.tags || 'General'}</span>
                 </div>
             </div>
@@ -2103,7 +2058,7 @@ window.renderVideoPrompts = function() {
         const finalThumbImg = p.thumbnailURL ? window.resolveImageSrc(p.thumbnailURL) : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
         
         const card = document.createElement('article');
-        card.className = "snap-start shrink-0 w-[85%] md:w-[45%] lg:w-[30%] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col transition hover:shadow-md cursor-pointer group relative aspect-[16/9]";
+        card.className = "snap-start shrink-0 w-[85%] md:w-[45%] lg:w-[30%] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col transition hover:shadow-md cursor-pointer group relative aspect-[16/9]";
         card.onclick = () => window.openPromptDetail(p.id);
         
         card.innerHTML = `
@@ -2140,15 +2095,14 @@ window.filterCategory = function(cat) {
     window.appState.currentPage = 1; 
     document.querySelectorAll('.category-btn').forEach(btn => {
         if (btn.getAttribute('data-category') === cat) {
-            btn.className = "category-btn bg-brand-500 text-white px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition shadow-sm";
+            btn.className = "category-btn bg-brand-500 text-white px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition shadow-sm";
         } else {
-            btn.className = "category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition text-slate-955 dark:text-slate-100";
+            btn.className = "category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition text-slate-900 dark:text-slate-100";
         }
     });
     renderPrompts();
 };
 
-// Modal for Admin Verified Prompts (Includes Ad / Paid Logic safely)
 window.openPromptDetail = async function(id) {
     const p = window.appState.promptsList.find(item => item.id === id);
     if (!p) return;
@@ -2156,7 +2110,6 @@ window.openPromptDetail = async function(id) {
     const hasUnlocked = window.appState.currentUserData && window.appState.currentUserData.unlockedPrompts && window.appState.currentUserData.unlockedPrompts[p.id];
     const isAdmin = window.appState.currentUser && window.appState.currentUser.email === 'kazimmustafa38@gmail.com';
 
-    // 1. Classic Strictly Paid Logic
     if (p.type === 'paid') {
         if (!hasUnlocked && !isAdmin) {
             if (!window.appState.currentUser) {
@@ -2197,7 +2150,6 @@ window.openPromptDetail = async function(id) {
         }
     }
 
-    // 2. Ad or Coins User Login Requirement Check
     if (p.type === 'ad_or_coins' && !hasUnlocked && !isAdmin) {
         if (!window.appState.currentUser) {
             alert("Please log in to unlock this premium content (Free via Ad or Paid).");
@@ -2206,13 +2158,11 @@ window.openPromptDetail = async function(id) {
         }
     }
 
-    // Set Global State & Modal Opening
     window.appState.currentDetailPrompt = p;
     runTransaction(ref(db, `prompts/${id}/views`), (curr) => { return (curr || p.views || 0) + 1; });
     window.updatePageMetadata(p.title, `Unlock and copy: ${p.title}.`);
     window.openModal('promptDetailModal');
 
-    // Display Media
     const finalDetailsImg = window.resolveImageSrc(p.imageURL);
     const isVideo = p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i));
     const detailImgEl = document.getElementById('detailImg');
@@ -2243,7 +2193,7 @@ window.openPromptDetail = async function(id) {
             
             const videoEl = document.createElement('video');
             videoEl.id = 'detailVideoEl';
-            videoEl.className = "w-full h-full object-cover rounded-xl shadow-inner max-h-[60vh] md:max-h-full bg-slate-950 absolute inset-0 z-10 hidden";
+            videoEl.className = "w-full h-full object-cover rounded-xl shadow-inner max-h-[60vh] md:max-h-full bg-slate-955 absolute inset-0 z-10 hidden";
             videoEl.controls = true;
             videoEl.autoplay = false; 
             videoEl.muted = false; 
@@ -2289,13 +2239,11 @@ window.openPromptDetail = async function(id) {
     const detailTag = document.getElementById('detailTag');
     if (detailTag) detailTag.innerText = p.tags || 'Trending';
 
-    // Handle Lock UI Logic
     const lockedOverlay = document.getElementById('lockedOverlay');
     const adLockedOverlay = document.getElementById('adLockedOverlay');
     const detailPromptText = document.getElementById('detailPromptText');
-    const actionButtons = document.querySelector('#promptContentArea .flex-wrap');
+    const actionButtons = document.querySelector('#promptContentArea .flex');
 
-    // Reset First
     if (lockedOverlay) lockedOverlay.classList.add('hidden');
     if (adLockedOverlay) adLockedOverlay.classList.add('hidden');
     if (detailPromptText) detailPromptText.classList.remove('blur-sm', 'select-none');
@@ -2305,15 +2253,14 @@ window.openPromptDetail = async function(id) {
         detailPromptText.innerText = p.description;
         if (window.appState.currentUser && window.appState.currentUser.email === 'kazimmustafa38@gmail.com') {
             detailPromptText.innerHTML += `
-                <div class="mt-4 pt-4 border-t border-slate-250 dark:border-slate-850 flex gap-2">
-                    <button onclick="window.editPrompt('${p.id}'); window.closePromptDetailModal();" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded transition">Edit</button>
-                    <button onclick="window.deletePrompt('${p.id}'); window.closePromptDetailModal();" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded transition">Delete</button>
+                <div class="mt-4 pt-4 border-t border-slate-250 dark:border-slate-800 flex gap-2">
+                    <button onclick="window.editPrompt('${p.id}'); window.closePromptDetailModal();" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded transition font-bold">Edit</button>
+                    <button onclick="window.deletePrompt('${p.id}'); window.closePromptDetailModal();" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded transition font-bold">Delete</button>
                 </div>
             `;
         }
     }
 
-    // 3. NEW: If it's an Ad or Coins prompt and hasn't been unlocked
     if (p.type === 'ad_or_coins' && !hasUnlocked && !isAdmin) {
         if (detailPromptText) {
             detailPromptText.innerText = "This content is securely locked. Unlock to view full prompt.";
@@ -2334,7 +2281,6 @@ window.openPromptDetail = async function(id) {
             if (adLockedPrice) adLockedPrice.innerText = cost;
             if (statusMsg) statusMsg.classList.add('hidden');
 
-            // Logic for "Watch Ad" Button
             if (btnAd) {
                 btnAd.onclick = function() {
                     if (statusMsg) statusMsg.classList.remove('hidden');
@@ -2366,7 +2312,6 @@ window.openPromptDetail = async function(id) {
                 };
             }
 
-            // Logic for "Pay Coins" Button
             if (btnCoins) {
                 btnCoins.onclick = async function() {
                     const userCoins = window.appState.currentUserData.coins || 0;
@@ -2404,7 +2349,7 @@ window.openPromptDetail = async function(id) {
                             alert("Deduction failed: " + err.message);
                         } finally {
                             btnCoins.disabled = false;
-                            btnCoins.innerHTML = `<i class="fa-solid fa-coins"></i> Pay <span id="adLockedPrice">${cost}</span> Coins`;
+                            btnCoins.innerHTML = `<i class="fa-solid fa-coins text-amber-500"></i> Pay <span id="adLockedPrice">${cost}</span> Coins`;
                         }
                     }
                 };
@@ -2412,17 +2357,6 @@ window.openPromptDetail = async function(id) {
         }
     }
 
-    const btnArea = document.querySelector('#promptContentArea .flex-wrap');
-    if (btnArea && !document.getElementById('promptShareBtn')) {
-        const shareBtn = document.createElement('button');
-        shareBtn.id = "promptShareBtn";
-        shareBtn.onclick = () => window.sharePrompt();
-        shareBtn.className = "bg-slate-200 dark:bg-slate-850 hover:bg-slate-300 dark:hover:bg-slate-800 text-xs px-3 py-1.5 rounded-md text-emerald-500 transition font-sans shadow-sm flex items-center gap-1";
-        shareBtn.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share Prompt`;
-        btnArea.appendChild(shareBtn);
-    }
-
-    // Hide user elements when admin prompt opens
     const adTopContainer = document.getElementById('modalUserAdTop');
     const adBottomContainer = document.getElementById('modalUserAdBottom');
     const socialBtn = document.getElementById('modalUserSocialBtn');
@@ -2445,7 +2379,6 @@ window.openPromptDetail = async function(id) {
     }
 };
 
-// Modal For User Uploaded Prompts
 window.openUserPromptDetail = async function(id) {
     const p = window.appState.userPromptsList.find(item => item.id === id);
     if (!p) return;
@@ -2506,20 +2439,9 @@ window.openUserPromptDetail = async function(id) {
         detailPromptText.innerText = p.description;
     }
 
-    const actionButtons = document.querySelector('#promptContentArea .flex-wrap');
+    const actionButtons = document.querySelector('#promptContentArea .flex');
     if (actionButtons) actionButtons.classList.remove('hidden');
 
-    const btnArea = document.querySelector('#promptContentArea .flex-wrap');
-    if (btnArea && !document.getElementById('promptShareBtn')) {
-        const shareBtn = document.createElement('button');
-        shareBtn.id = "promptShareBtn";
-        shareBtn.onclick = () => window.sharePrompt();
-        shareBtn.className = "bg-slate-200 dark:bg-slate-850 hover:bg-slate-300 dark:hover:bg-slate-800 text-xs px-3 py-1.5 rounded-md text-emerald-500 transition font-sans shadow-sm flex items-center gap-1";
-        shareBtn.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share Prompt`;
-        btnArea.appendChild(shareBtn);
-    }
-
-    // INJECT ADSTERRA AND SOCIAL LINKS
     const adTopContainer = document.getElementById('modalUserAdTop');
     const adBottomContainer = document.getElementById('modalUserAdBottom');
     const socialBtn = document.getElementById('modalUserSocialBtn');
@@ -2562,7 +2484,9 @@ window.openUserPromptDetail = async function(id) {
 
 window.copyToClipboard = function() {
     if (!window.appState.currentDetailPrompt) return;
-    const text = document.getElementById('detailPromptText').innerText;
+    const promptEl = document.getElementById('detailPromptText');
+    if(!promptEl) return;
+    const text = promptEl.innerText;
     const p = window.appState.currentDetailPrompt;
 
     if (p.type === 'paid' || p.type === 'ad_or_coins') {
@@ -2584,7 +2508,7 @@ window.regeneratePromptWithAI = async function() {
     }
 
     const cost = 50000;
-    const userCoins = window.appState.currentUserData.coins || 0;
+    const userCoins = window.appState.currentUserData?.coins || 0;
 
     if (userCoins < cost) {
         alert(`Insufficient Balance! Costs ${formatCoins(cost)} coins.`);
@@ -2633,8 +2557,8 @@ window.regeneratePromptWithAI = async function() {
             logId = push(ref(db, `purchaseLogs/${window.appState.currentUser.uid}`)).key;
             purchaseLogRef = ref(db, `purchaseLogs/${window.appState.currentUser.uid}/${logId}`);
             await set(purchaseLogRef, {
-                promptId: window.appState.currentDetailPrompt.id || "ai-regenerate",
-                promptTitle: `AI Generation: ${window.appState.currentDetailPrompt.title || "Custom Prompt"}`,
+                promptId: window.appState.currentDetailPrompt ? window.appState.currentDetailPrompt.id : "ai-regenerate",
+                promptTitle: `AI Generation: ${window.appState.currentDetailPrompt ? window.appState.currentDetailPrompt.title : "Custom Prompt"}`,
                 amountCoins: cost,
                 timestamp: Date.now()
             });
@@ -2695,13 +2619,15 @@ window.regeneratePromptWithAI = async function() {
             alert("Failed: " + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-play"></i> Generate with PromptKaro AI 🚀`;
+            btn.innerHTML = `<i class="fa-solid fa-microchip"></i> Generate Custom AI Prompt`;
         }
     }
 };
 
 window.copyAiOutput = function() {
-    const text = document.getElementById('aiOutputText').innerText;
+    const textEl = document.getElementById('aiOutputText');
+    if(!textEl) return;
+    const text = textEl.innerText;
     if(!text || text.startsWith("Connecting") || text.startsWith("Error")) {
         alert("Nothing valid to copy.");
         return;
