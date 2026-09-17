@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getDatabase, ref, set, get, update, push, child, onValue, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, push, onValue, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 // ==========================================
 // PART 1: GLOBAL STATE & UI HELPER FUNCTIONS
@@ -9,7 +9,7 @@ import { getDatabase, ref, set, get, update, push, child, onValue, remove, runTr
 const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
 const IMGBB_API_KEY = "54345d70fbd11c8a3ccd7e180c3281e2";
 
-// Helper function to dynamically parse and normalize categories from Firebase (Array or Object format)
+// Helper function to dynamically parse and normalize categories
 function normalizeCategories(val) {
     if (!val) return [];
     if (Array.isArray(val)) {
@@ -63,16 +63,16 @@ function highlightText(text, search) {
 window.highlightText = highlightText;
 
 function updatePageMetadata(titleSuffix, descriptionSuffix, keywordsSuffix) {
-    document.title = titleSuffix ? `PromptKaro - ${titleSuffix}` : "PromptKaro - AI Prompt Sharing Platform";
+    document.title = titleSuffix ? `PromptKaro - ${titleSuffix}` : "PromptKaro - Free AI Prompt Sharing Platform";
     
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-        metaDesc.setAttribute('content', descriptionSuffix || "Explore, copy, and share free trending AI prompts for Midjourney, Stable Diffusion, ChatGPT.");
+        metaDesc.setAttribute('content', descriptionSuffix || "Explore, copy, and share free trending AI prompts for Midjourney, ChatGPT, and Flux AI.");
     }
     
     const metaKey = document.querySelector('meta[name="keywords"]');
     if (metaKey) {
-        metaKey.setAttribute('content', keywordsSuffix || "AI Prompts, Midjourney Prompts, ChatGPT Prompts, Bing 3D Name Art, Stable Diffusion, Free AI Prompts, Copy Paste Prompts, PromptKaro");
+        metaKey.setAttribute('content', keywordsSuffix || "AI Prompts, Midjourney Prompts, ChatGPT Prompts, Bing 3D Name Art, Free AI Prompts, PromptKaro");
     }
 
     let canonical = document.querySelector('link[rel="canonical"]');
@@ -94,7 +94,7 @@ window.appState = {
     currentUser: null,
     currentUserData: null,
     promptsList: [],
-    userPromptsList: [], // For Community Prompts
+    userPromptsList: [], 
     blogsList: [], 
     categories: [], 
     blogCategories: [],
@@ -105,7 +105,7 @@ window.appState = {
     isLoginMode: true,
     currentDetailPrompt: null,
     currentPage: 1,
-    currentUserPage: 1, // For Community Prompts Pagination
+    currentUserPage: 1, 
     currentBlogPage: 1,
     viewMode: 'home', 
     navigationStack: [] 
@@ -160,11 +160,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     window.history.pushState({ type: 'tab', value: 'home' }, "");
-    
-    if (!localStorage.getItem('cookieAccepted')) {
-        const banner = document.getElementById('cookieBanner');
-        if (banner) banner.classList.remove('hidden');
-    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const sharedPromptId = urlParams.get('prompt');
@@ -207,40 +202,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function acceptCookies() {
-    localStorage.setItem('cookieAccepted', 'true');
-    const banner = document.getElementById('cookieBanner');
-    if (banner) banner.classList.add('hidden');
-}
-window.acceptCookies = acceptCookies;
-
-window.addEventListener('popstate', (event) => {
-    handleBackAction();
-});
-
-document.addEventListener("backbutton", (e) => {
-    e.preventDefault();
-    handleBackAction();
-}, false);
-
-function handleBackAction() {
-    if (window.appState.navigationStack.length > 0) {
-        const prev = window.appState.navigationStack.pop();
-        if (prev.type === 'tab') {
-            window.switchTab(prev.value, true);
-        } else if (prev.type === 'modal') {
-            window.closeModal(prev.value, true);
-        }
-    } else {
-        if (navigator.app && typeof navigator.app.exitApp === 'function') {
-            navigator.app.exitApp();
-        } else {
-            window.history.go(-1);
-        }
-    }
-}
-window.handleBackAction = handleBackAction;
-
 function toggleMobileMenu() {
     const menu = document.getElementById('mobileMenu');
     if (menu) menu.classList.toggle('translate-x-full');
@@ -259,7 +220,6 @@ function switchTab(tabId, isBack = false) {
         'promptsSection', 
         'userPromptsDisplaySection', 
         'adminView', 
-        'walletSection', 
         'blogSection', 
         'userUploadSection'
     ];
@@ -281,38 +241,22 @@ function switchTab(tabId, isBack = false) {
         if (typeof window.filterCategory === 'function') window.filterCategory('All');
         updatePageMetadata("Free AI Prompt Library", "Explore, copy, and share free trending AI prompts.");
     } 
-    else if (tabId === 'discover') {
-        ['categoryFiltersContainer', 'promptsSection', 'userPromptsDisplaySection'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.classList.remove('hidden');
-        });
-        window.appState.currentPage = 1;
-        window.appState.currentUserPage = 1;
-        if (typeof window.filterCategory === 'function') window.filterCategory('All');
-        updatePageMetadata("Discover Hot Trends", "Discover best AI Prompts.");
-    } 
     else if (tabId === 'blog') {
         const el = document.getElementById('blogSection');
         if(el) el.classList.remove('hidden');
         window.appState.currentBlogPage = 1;
         if (typeof window.renderBlogs === 'function') window.renderBlogs();
-        updatePageMetadata("AI Blogs & Guides", "Read high-quality articles, tutorials, and guidelines about AI image generation on PromptKaro.");
+        updatePageMetadata("AI Blogs & Guides", "Read high-quality articles and tutorials on PromptKaro.");
     } 
     else if (tabId === 'admin') {
         const el = document.getElementById('adminView');
         if(el) el.classList.remove('hidden');
         updatePageMetadata("Admin Panel");
-        if (typeof window.fetchGitHubImages === 'function') window.fetchGitHubImages();
-    } 
-    else if (tabId === 'wallet') {
-        const el = document.getElementById('walletSection');
-        if(el) el.classList.remove('hidden');
-        updatePageMetadata("Coin Wallet", "Buy coins and unlock premium AI prompts on PromptKaro platform.");
     } 
     else if (tabId === 'userUpload') {
         const el = document.getElementById('userUploadSection');
         if(el) el.classList.remove('hidden');
-        updatePageMetadata("Upload Prompt", "Upload your prompt and monetize with Adsterra.");
+        updatePageMetadata("Upload Prompt", "Upload your AI prompt for free.");
     }
 }
 window.switchTab = switchTab;
@@ -359,107 +303,13 @@ function closeModal(id, isBack = false) {
 }
 window.closeModal = closeModal;
 
-function injectHtmlWithScripts(containerId, htmlContent) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = htmlContent || '';
-    const scripts = container.querySelectorAll('script');
-    scripts.forEach(oldScript => {
-        const newScript = document.createElement('script');
-        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-        if (oldScript.innerHTML) {
-            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        }
-        oldScript.parentNode.replaceChild(newScript, oldScript);
-    });
-}
-window.injectHtmlWithScripts = injectHtmlWithScripts;
-
-function toggleAdminTab(tab) {
-    const addTab = document.getElementById('adminAddPromptTab');
-    const blogTab = document.getElementById('adminBlogsTab');
-    const catTab = document.getElementById('adminCategoriesTab');
-    const payTab = document.getElementById('adminPaymentsTab');
-    const aiTab = document.getElementById('adminAiConfigTab');
-    const adsTab = document.getElementById('adminAdsTab'); 
-    const commTab = document.getElementById('adminCommunityTab');
-
-    if(addTab) addTab.classList.add('hidden');
-    if(blogTab) blogTab.classList.add('hidden');
-    if(catTab) catTab.classList.add('hidden');
-    if(payTab) payTab.classList.add('hidden');
-    if(aiTab) aiTab.classList.add('hidden');
-    if(adsTab) adsTab.classList.add('hidden');
-    if(commTab) commTab.classList.add('hidden');
-
-    if (tab === 'addPrompt' && addTab) {
-        addTab.classList.remove('hidden');
-    } else if (tab === 'blogs' && blogTab) {
-        blogTab.classList.remove('hidden');
-        if (typeof window.renderAdminBlogsList === 'function') {
-            window.renderAdminBlogsList();
-        }
-    } else if (tab === 'categories' && catTab) {
-        catTab.classList.remove('hidden');
-    } else if (tab === 'aiConfig' && aiTab) {
-        aiTab.classList.remove('hidden');
-    } else if (tab === 'adsConfig' && adsTab) {
-        adsTab.classList.remove('hidden');
-    } else if (tab === 'community' && commTab) {
-        commTab.classList.remove('hidden');
-    } else if (payTab) {
-        payTab.classList.remove('hidden');
-    }
-}
-window.toggleAdminTab = toggleAdminTab;
-
-function switchHistoryTab(type) {
-    const btnCred = document.getElementById('tabCredits');
-    const btnDeb = document.getElementById('tabDebits');
-    const tblCred = document.getElementById('tableCredits');
-    const tblDeb = document.getElementById('tableDebits');
-
-    if (type === 'credits') {
-        if(btnCred) btnCred.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-brand-500 text-white text-xs font-bold transition shadow-sm";
-        if(btnDeb) btnDeb.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold transition";
-        if(tblCred) tblCred.classList.remove('hidden');
-        if(tblDeb) tblDeb.classList.add('hidden');
-    } else {
-        if(btnCred) btnCred.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold transition";
-        if(btnDeb) btnDeb.className = "flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-brand-500 text-white text-xs font-bold transition shadow-sm";
-        if(tblCred) tblCred.classList.add('hidden');
-        if(tblDeb) tblDeb.classList.remove('hidden');
-    }
-}
-window.switchHistoryTab = switchHistoryTab;
-
-function toggleAiPanel() {
-    const panel = document.getElementById('aiPanel');
-    if(panel) panel.classList.toggle('hidden');
-}
-window.toggleAiPanel = toggleAiPanel;
-
-function openRequestModal() {
-    window.openModal('requestPromptModal');
-}
-window.openRequestModal = openRequestModal;
-
-function closeRequestModal() {
-    window.closeModal('requestPromptModal');
-}
-window.closeRequestModal = closeRequestModal;
-
 function openAuthModal(mode) {
     window.appState.isLoginMode = mode === 'login';
     const title = document.getElementById('authTitle');
     const btn = document.getElementById('authSubmitBtn');
-    const txt = document.getElementById('authToggleText');
-    const toggleBtn = document.getElementById('authToggleBtn');
 
     if(title) title.innerText = window.appState.isLoginMode ? "Secure Login" : "Sign Up / Register";
     if(btn) btn.innerText = window.appState.isLoginMode ? "Login to Account" : "Register Now";
-    if(txt) txt.innerText = window.appState.isLoginMode ? "Don't have an account?" : "Already have an account?";
-    if(toggleBtn) toggleBtn.innerText = window.appState.isLoginMode ? "Register Now" : "Login";
     window.openModal('authModal');
 }
 window.openAuthModal = openAuthModal;
@@ -469,90 +319,26 @@ function closeAuthModal() {
 }
 window.closeAuthModal = closeAuthModal;
 
-function toggleAuthMode() {
-    window.openAuthModal(window.appState.isLoginMode ? 'signup' : 'login');
-}
-window.toggleAuthMode = toggleAuthMode;
-
 function closePromptDetailModal() {
     window.closeModal('promptDetailModal');
-    const aiOut = document.getElementById('aiOutputContainer');
-    const aiPan = document.getElementById('aiPanel');
-    if(aiOut) aiOut.classList.add('hidden');
-    if(aiPan) aiPan.classList.add('hidden');
     
     const videoEl = document.getElementById('detailVideoEl');
-    const thumbOverlay = document.getElementById('detailThumbOverlay');
-    
     if (videoEl) {
         videoEl.pause();
         videoEl.removeAttribute('src'); 
         videoEl.load();
     }
-    if (thumbOverlay) {
-        thumbOverlay.classList.remove('hidden');
-    }
-    
-    const modalUserAdTop = document.getElementById('modalUserAdTop');
-    const modalUserAdBottom = document.getElementById('modalUserAdBottom');
-    if(modalUserAdTop) { modalUserAdTop.innerHTML = ''; modalUserAdTop.classList.add('hidden'); }
-    if(modalUserAdBottom) { modalUserAdBottom.innerHTML = ''; modalUserAdBottom.classList.add('hidden'); }
-
-    const adLockedOverlay = document.getElementById('adLockedOverlay');
-    if (adLockedOverlay) adLockedOverlay.classList.add('hidden');
 
     updatePageMetadata(); 
     clearUrlParameters(); 
 }
 window.closePromptDetailModal = closePromptDetailModal;
 
-function calculateExchange() {
-    const pkrInput = document.getElementById('pkrAmount');
-    const resultSpan = document.getElementById('coinsResult');
-    if (pkrInput && resultSpan) {
-        const pkr = parseFloat(pkrInput.value) || 0;
-        resultSpan.innerText = (pkr * 10000).toLocaleString();
-    }
-}
-window.calculateExchange = calculateExchange;
-
-function togglePriceField() {
-    const pType = document.getElementById('pType');
-    const priceContainer = document.getElementById('priceFieldContainer');
-    if (pType && priceContainer) {
-        const type = pType.value;
-        if (type === 'paid' || type === 'ad_or_coins') {
-            priceContainer.classList.remove('hidden');
-        } else {
-            priceContainer.classList.add('hidden');
-        }
-    }
-}
-window.togglePriceField = togglePriceField;
-
-function resetForm() {
-    const pForm = document.getElementById('promptForm');
-    const editId = document.getElementById('editPromptId');
-    const priceContainer = document.getElementById('priceFieldContainer');
-    if(pForm) pForm.reset();
-    if(editId) editId.value = '';
-    if(priceContainer) priceContainer.classList.add('hidden');
-}
-window.resetForm = resetForm;
-
-function resetBlogForm() {
-    const bForm = document.getElementById('blogForm');
-    const editId = document.getElementById('editBlogId');
-    if(bForm) bForm.reset();
-    if(editId) editId.value = '';
-}
-window.resetBlogForm = resetBlogForm;
-
 function safeCopy(text) {
     if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
         navigator.clipboard.writeText(text)
-            .then(() => alert("Copied to clipboard!"))
-            .catch(err => fallbackCopy(text));
+            .then(() => alert("Prompt copied to clipboard successfully!"))
+            .catch(() => fallbackCopy(text));
     } else {
         fallbackCopy(text);
     }
@@ -562,17 +348,14 @@ window.safeCopy = safeCopy;
 function fallbackCopy(text) {
     const textArea = document.createElement("textarea");
     textArea.value = text;
-    textArea.style.top = "0";
-    textArea.style.left = "0";
     textArea.style.position = "fixed";
     textArea.style.opacity = "0";
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
     try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-            alert("Copied to clipboard!");
+        if (document.execCommand('copy')) {
+            alert("Prompt copied to clipboard!");
         } else {
             alert("Unable to copy.");
         }
@@ -582,78 +365,8 @@ function fallbackCopy(text) {
     document.body.removeChild(textArea);
 }
 
-function sharePrompt() {
-    if (!window.appState.currentDetailPrompt) return;
-    const pId = window.appState.currentDetailPrompt.id;
-    const pTitle = window.appState.currentDetailPrompt.title;
-    
-    const shareLink = `${window.location.origin}/?prompt=${pId}`;
-
-    if (navigator.share) {
-        navigator.share({
-            title: `PromptKaro - ${pTitle}`,
-            text: `Check out this amazing AI prompt: "${pTitle}" on PromptKaro!`,
-            url: shareLink
-        }).catch(err => console.log(err));
-    } else {
-        window.safeCopy(shareLink);
-        alert("Deep Link copied to clipboard!");
-    }
-}
-window.sharePrompt = sharePrompt;
-
-function shareBlog() {
-    const openedTitleEl = document.getElementById('blogDetailTitle');
-    if (!openedTitleEl) return;
-    const openedTitle = openedTitleEl.innerText;
-    const currentBlog = window.appState.blogsList.find(b => b.title === openedTitle);
-    if (!currentBlog) return;
-    
-    const shareLink = `${window.location.origin}/?blog=${currentBlog.id}`;
-
-    if (navigator.share) {
-        navigator.share({
-            title: `PromptKaro Blog - ${currentBlog.title}`,
-            text: `Read this helpful AI guide: "${currentBlog.title}" on PromptKaro!`,
-            url: shareLink
-        }).catch(err => console.log(err));
-    } else {
-        window.safeCopy(shareLink);
-        alert("Article Link copied to clipboard!");
-    }
-}
-window.shareBlog = shareBlog;
-
-function openCommunityDialog() {
-    if(window.latestAdminTimestamp) {
-        localStorage.setItem('lastReadAdminMessage', window.latestAdminTimestamp.toString());
-    }
-    document.querySelectorAll('.admin-chat-badge').forEach(b => b.classList.add('hidden'));
-    window.openModal('communityChatModal');
-    
-    const area = document.getElementById('chatMessagesArea');
-    if(area) {
-        setTimeout(() => area.scrollTop = area.scrollHeight, 100);
-    }
-}
-window.openCommunityDialog = openCommunityDialog;
-
-function closeCommunityChat() {
-    window.closeModal('communityChatModal');
-}
-window.closeCommunityChat = closeCommunityChat;
-
-// GLOBAL FIX: Attach buyPrompt to Window to fix "buyPrompt is not defined" error
-window.buyPrompt = function(promptId) {
-    if (typeof window.openPromptDetail === 'function') {
-        window.openPromptDetail(promptId);
-    } else {
-        console.error("openPromptDetail function not available!");
-    }
-};
-
 // ==========================================
-// PART 2: MODULAR ASYNC BACKEND FIREBASE CODE
+// PART 2: FIREBASE BACKEND INTEGRATION
 // ==========================================
 
 const firebaseConfig = {
@@ -691,7 +404,6 @@ if (authFormEl) {
                 const userCred = await createUserWithEmailAndPassword(auth, email, password);
                 await set(ref(db, `users/${userCred.user.uid}`), {
                     email: email,
-                    coins: 0,
                     createdAt: Date.now()
                 });
                 alert("Account created successfully!");
@@ -707,135 +419,7 @@ if (authFormEl) {
     });
 }
 
-const purchaseFormEl = document.getElementById('purchaseCoinsForm');
-if (purchaseFormEl) {
-    purchaseFormEl.addEventListener('submit', async (e) => {
-        e.preventDefault(); 
-        if (!window.appState.currentUser) {
-            alert("Please log in first!");
-            window.openAuthModal('login');
-            return;
-        }
-        const pkrAmount = parseFloat(document.getElementById('pkrAmount').value) || 0;
-        const tid = document.getElementById('pTransactionID').value.trim();
-        const senderInfo = document.getElementById('pSenderInfo').value.trim();
-
-        if (pkrAmount <= 0 || !tid || !senderInfo) {
-            alert("Please fill all fields properly.");
-            return;
-        }
-
-        const btn = e.target.querySelector('button[type="submit"]');
-        const originalText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = "Submitting...";
-
-        try {
-            const txRef = push(ref(db, 'transactions'));
-            await set(txRef, {
-                userId: window.appState.currentUser.uid,
-                userEmail: window.appState.currentUser.email,
-                amountPKR: pkrAmount,
-                amountCoins: pkrAmount * 10000,
-                tid: tid,
-                senderInfo: senderInfo,
-                paymentStatus: 'pending',
-                timestamp: Date.now()
-            });
-            alert("Deposit request submitted successfully! Waiting for approval.");
-            e.target.reset();
-            const coinsRes = document.getElementById('coinsResult');
-            if(coinsRes) coinsRes.innerText = "0";
-        } catch (err) {
-            alert("Submission failed: " + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = originalText;
-        }
-    });
-}
-
-const requestFormEl = document.getElementById('requestForm');
-if (requestFormEl) {
-    requestFormEl.addEventListener('submit', async (e) => {
-        e.preventDefault(); 
-        const email = document.getElementById('reqEmail').value.trim();
-        const desc = document.getElementById('reqDesc').value.trim();
-        
-        const btn = e.target.querySelector('button[type="submit"]');
-        const originalText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = "Sending...";
-
-        try {
-            await push(ref(db, 'promptRequests'), { email, description: desc, timestamp: Date.now() });
-            alert("Request sent successfully!");
-            e.target.reset();
-            window.closeRequestModal();
-        } catch (err) {
-            alert("Failed: " + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = originalText;
-        }
-    });
-}
-
-// ADMIN PROMPT ADD/EDIT FORM
-const promptFormEl = document.getElementById('promptForm');
-if (promptFormEl) {
-    promptFormEl.addEventListener('submit', async (e) => {
-        e.preventDefault(); 
-        const editId = document.getElementById('editPromptId').value;
-        
-        const rawImageUrl = document.getElementById('pImageURL').value.trim();
-        const fallbackMediaType = rawImageUrl.match(/\.(mp4|webm|ogg)$/i) ? 'video' : 'image';
-        const definedMediaType = document.getElementById('pMediaType') ? document.getElementById('pMediaType').value : fallbackMediaType;
-
-        const payload = {
-            title: document.getElementById('pTitle').value.trim(),
-            tags: document.getElementById('pCategory').value,
-            imageURL: rawImageUrl,
-            mediaType: definedMediaType,
-            thumbnailURL: document.getElementById('pThumbnailURL') ? document.getElementById('pThumbnailURL').value.trim() : "",
-            views: parseInt(document.getElementById('pInitialViews').value) || 0,
-            description: document.getElementById('pDescription').value.trim(),
-            type: document.getElementById('pType').value,
-            priceCoins: (document.getElementById('pType').value === 'paid' || document.getElementById('pType').value === 'ad_or_coins') ? (parseInt(document.getElementById('pPrice').value) || 0) : 0,
-            
-            adLink: document.getElementById('pAdLink') ? document.getElementById('pAdLink').value.trim() : "https://toolswebsite205.blogspot.com",
-            adPriceCoins: document.getElementById('pAdPrice') ? parseInt(document.getElementById('pAdPrice').value) : 50000,
-
-            isTrending: document.getElementById('pTrending').checked,
-            isPinned: document.getElementById('pPinned').checked,
-            timestamp: editId ? (window.appState.promptsList.find(p => p.id === editId)?.timestamp || Date.now()) : Date.now()
-        };
-
-        const btn = e.target.querySelector('button[type="submit"]');
-        const originalText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = "Saving...";
-
-        try {
-            if (editId) {
-                await update(ref(db, `prompts/${editId}`), payload);
-                alert("Prompt updated successfully.");
-            } else {
-                await push(ref(db, 'prompts'), payload);
-                alert("New Prompt added successfully!");
-            }
-            window.resetForm();
-            window.switchTab('home');
-        } catch (err) {
-            alert("Failed to save prompt: " + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = originalText;
-        }
-    });
-}
-
-// USER UPLOAD FORM LOGIC (ImgBB API + 50k Coins Deduction)
+// USER FREE PROMPT UPLOAD
 const userUploadForm = document.getElementById('userUploadForm');
 if (userUploadForm) {
     userUploadForm.addEventListener('submit', async (e) => {
@@ -844,13 +428,6 @@ if (userUploadForm) {
         if (!window.appState.currentUser) {
             alert("Please log in first!");
             window.openAuthModal('login');
-            return;
-        }
-
-        const userCoins = window.appState.currentUserData?.coins || 0;
-        if (userCoins < 50000) {
-            alert("Insufficient Balance! You need 50,000 coins to upload a prompt.");
-            window.switchTab('wallet');
             return;
         }
 
@@ -880,44 +457,23 @@ if (userUploadForm) {
                 throw new Error("Image upload failed: " + imgData.error.message);
             }
 
-            const imageUrl = imgData.data.url;
-
             const payload = {
                 title: document.getElementById('uTitle').value.trim(),
                 tags: document.getElementById('uCategory').value,
-                imageURL: imageUrl,
+                imageURL: imgData.data.url,
                 mediaType: 'image', 
                 description: document.getElementById('uDescription').value.trim(),
-                adsterraBanner: document.getElementById('uAdsterraBanner').value.trim(),
-                adsterraNative: document.getElementById('uAdsterraNative').value.trim(),
-                socialLink: document.getElementById('uSocialLink').value.trim(),
                 uploaderUid: window.appState.currentUser.uid,
                 uploaderEmail: window.appState.currentUser.email,
                 views: 0,
+                type: 'free',
                 timestamp: Date.now()
             };
 
             await push(ref(db, 'userPrompts'), payload);
 
-            const userCoinsRef = ref(db, `users/${window.appState.currentUser.uid}/coins`);
-            await runTransaction(userCoinsRef, (current) => {
-                return (current || 0) - 50000;
-            });
-
-            await push(ref(db, `purchaseLogs/${window.appState.currentUser.uid}`), {
-                promptId: "user-upload",
-                promptTitle: "Uploaded Custom Prompt",
-                amountCoins: 50000,
-                timestamp: Date.now()
-            });
-
-            alert("Prompt Successfully Uploaded! 50,000 coins deducted.");
+            alert("Prompt Successfully Uploaded!");
             userUploadForm.reset();
-            const fileLbl = document.getElementById('uImageFileName');
-            if(fileLbl) {
-                fileLbl.innerText = "Click or Drag to select an image...";
-                fileLbl.classList.remove('text-purple-500');
-            }
             window.switchTab('home');
 
         } catch (err) {
@@ -929,664 +485,34 @@ if (userUploadForm) {
     });
 }
 
-// UPDATED COIN FORMATTER LOGIC (M for Millions, K for Thousands)
-function formatCoins(num) {
-    const val = parseInt(num) || 0;
-    
-    // 1 Million (1,000,000) ya us se zyada par "M" show karega
-    if (val >= 1000000) {
-        const million = val / 1000000;
-        return million.toFixed(2) + 'M'; // e.g. 1,068,700 -> 1.07M
-    }
-    
-    // 10 Thousand (10,000) se lekar 999,999 tak "K" show karega
-    if (val >= 10000) {
-        const divided = val / 1000;
-        if (val % 1000 === 0) {
-            return Math.floor(divided) + 'K';
-        } else {
-            return divided.toFixed(1) + 'K'; // e.g. 50,000 -> 50K
-        }
-    }
-    
-    return val.toLocaleString();
-}
-window.formatCoins = formatCoins;
-
 window.logout = async function() {
     await signOut(auth);
 };
 
-const apiKeySettingsRef = ref(db, 'settings/geminiApiKey');
-onValue(apiKeySettingsRef, (snapshot) => {
-    const input = document.getElementById('adminApiKeyInput');
-    if (snapshot.exists() && input) {
-        input.value = snapshot.val();
-    }
-});
-
-window.saveApiKey = async function() {
-    const input = document.getElementById('adminApiKeyInput');
-    if(!input) return;
-    const keyVal = input.value.trim();
-    if(!keyVal) {
-        alert("Please enter a valid API Key.");
-        return;
-    }
-    await set(ref(db, 'settings/geminiApiKey'), keyVal);
-    alert("AI API Key updated securely.");
-};
-
-const adsRef = ref(db, 'settings/ads');
-onValue(adsRef, (snapshot) => {
-    if (snapshot.exists()) {
-        window.appState.ads = snapshot.val();
-        
-        const topAdInput = document.getElementById('adDisplayTop');
-        if (topAdInput) topAdInput.value = window.appState.ads.top || '';
-        
-        const centerAdInput = document.getElementById('adArticleCenter');
-        if (centerAdInput) centerAdInput.value = window.appState.ads.center || '';
-        
-        const multAdInput = document.getElementById('adMultiplexBottom');
-        if (multAdInput) multAdInput.value = window.appState.ads.multiplex || '';
-        
-        const botAdInput = document.getElementById('adDisplayBottom');
-        if (botAdInput) botAdInput.value = window.appState.ads.bottom || '';
-    }
-});
-
-window.saveAdsConfig = async function() {
-    const payload = {
-        top: document.getElementById('adDisplayTop')?.value || '',
-        center: document.getElementById('adArticleCenter')?.value || '',
-        multiplex: document.getElementById('adMultiplexBottom')?.value || '',
-        bottom: document.getElementById('adDisplayBottom')?.value || '',
-    };
-    try {
-        await set(ref(db, 'settings/ads'), payload);
-        alert("AdSense Configuration Saved Successfully!");
-    } catch (err) {
-        alert("Failed to save ads: " + err.message);
-    }
-};
-
-async function fetchGitHubImages() {
-    const datalist = document.getElementById('githubImagesList');
-    const statusSpan = document.getElementById('githubApiStatus');
-    if (!datalist) return;
-
-    if (statusSpan) {
-        statusSpan.innerText = "🔄 Syncing /images/ list from GitHub repo...";
-        statusSpan.className = "block text-[10px] text-amber-500 font-semibold mt-1";
-    }
-
-    try {
-        const response = await fetch("https://api.github.com/repos/freeearningsonline/Ai-Prompt-/contents/images");
-        if (response.ok) {
-            const data = await response.json();
-            datalist.innerHTML = '';
-            let count = 0;
-
-            data.forEach(item => {
-                if (item.type === 'file' && /\.(jpg|jpeg|png|webp|gif|mp4|webm)$/i.test(item.name)) {
-                    const option = document.createElement('option');
-                    option.value = item.name;
-                    datalist.appendChild(option);
-                    count++;
-                }
-            });
-
-            if (statusSpan) {
-                statusSpan.innerText = `✅ Found ${count} media files in GitHub folder.`;
-                statusSpan.className = "block text-[10px] text-emerald-500 font-semibold mt-1";
-            }
-        } else {
-            if (statusSpan) {
-                statusSpan.innerText = "⚠️ Repo folder empty or offline. Enter filename manually.";
-                statusSpan.className = "block text-[10px] text-rose-500 font-semibold mt-1";
-            }
-        }
-    } catch (err) {
-        console.warn("GitHub contents API error: ", err);
-        if (statusSpan) {
-            statusSpan.innerText = "⚠️ GitHub API rate limit reached. Type file name manually.";
-            statusSpan.className = "block text-[10px] text-rose-500/80 font-semibold mt-1";
-        }
-    }
-}
-window.fetchGitHubImages = fetchGitHubImages;
-
-const communityRef = ref(db, 'communityChat');
-window.latestAdminTimestamp = 0;
-
-onValue(communityRef, (snapshot) => {
-    window.appState.chatMessages = [];
-    window.latestAdminTimestamp = 0;
-    if (snapshot.exists()) {
-        const data = snapshot.val();
-        for (let key in data) {
-            const msg = { id: key, ...data[key] };
-            window.appState.chatMessages.push(msg);
-            if (msg.isAdmin && msg.type === 'announcement') {
-                window.latestAdminTimestamp = Math.max(window.latestAdminTimestamp, msg.timestamp || 0);
-            }
-        }
-    }
-    window.appState.chatMessages.sort((a, b) => a.timestamp - b.timestamp);
-    renderChatMessages();
-
-    const lastRead = parseInt(localStorage.getItem('lastReadAdminMessage') || '0');
-    const chatModal = document.getElementById('communityChatModal');
-    const isModalHidden = chatModal ? chatModal.classList.contains('hidden') : true;
-
-    if (window.latestAdminTimestamp > lastRead && isModalHidden) {
-        document.querySelectorAll('.admin-chat-badge').forEach(b => b.classList.remove('hidden'));
-    }
-});
-
-function renderChatMessages() {
-    const area = document.getElementById('chatMessagesArea');
-    if(!area) return;
-    
-    area.innerHTML = '<div class="text-center my-2"><span class="bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-300 text-[10px] px-3 py-1 rounded-lg shadow-sm font-bold">Welcome to PromptKaro Global Chat! Note: Be respectful.</span></div>';
-    
-    const currentUid = window.appState.currentUser ? window.appState.currentUser.uid : null;
-
-    window.appState.chatMessages.forEach(msg => {
-        const isSelf = currentUid && msg.userId === currentUid;
-        const isAdmin = msg.isAdmin;
-        
-        const wrapper = document.createElement('div');
-        wrapper.className = "flex flex-col w-full";
-        
-        if (isAdmin && msg.type === 'announcement') {
-            wrapper.innerHTML = `
-                <div class="self-center bg-amber-100 dark:bg-amber-900/50 border border-amber-400 dark:border-amber-600 rounded-xl p-3 my-2 max-w-[90%] md:max-w-[70%] shadow-sm text-center w-full">
-                    <div class="text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase mb-1 flex items-center justify-center gap-1"><i class="fa-solid fa-bullhorn"></i> Admin Announcement</div>
-                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200">${msg.text}</p>
-                    <span class="text-[9px] text-slate-500 mt-1 block">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-            `;
-        } else if (isSelf) {
-            wrapper.innerHTML = `
-                <div class="self-end bg-[#d9fdd3] dark:bg-[#005c4b] text-slate-900 dark:text-slate-100 rounded-l-xl rounded-tr-xl px-3 py-1.5 max-w-[85%] md:max-w-[75%] shadow-sm relative my-0.5">
-                    <p class="text-[13px] font-medium break-words">${msg.text}</p>
-                    <span class="text-[9px] text-slate-500 dark:text-slate-400 block text-right mt-0.5">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-            `;
-        } else {
-            wrapper.innerHTML = `
-                <div class="self-start bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-r-xl rounded-tl-xl px-3 py-1.5 max-w-[85%] md:max-w-[75%] shadow-sm relative my-0.5">
-                    <span class="text-[10px] font-bold text-brand-500 mb-0.5 block flex items-center gap-1">
-                        ${isAdmin ? '<i class="fa-solid fa-shield-halved text-red-500"></i><span class="text-red-500">Admin</span>' : (msg.userName || 'User')}
-                    </span>
-                    <p class="text-[13px] font-medium break-words">${msg.text}</p>
-                    <span class="text-[9px] text-slate-500 dark:text-slate-400 block text-right mt-0.5">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-            `;
-        }
-        area.appendChild(wrapper);
-    });
-    
-    area.scrollTop = area.scrollHeight;
-}
-
-window.sendChatMessage = async function() {
-    if (!window.appState.currentUser) {
-        alert("Please log in to chat.");
-        window.openAuthModal('login');
-        return;
-    }
-    
-    const input = document.getElementById('chatInput');
-    if(!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-    
-    input.value = '';
-    input.style.height = ''; 
-
-    const isAdmin = window.appState.currentUser.email === 'kazimmustafa38@gmail.com';
-    const userName = window.appState.currentUser.email.split('@')[0];
-
-    try {
-        await push(ref(db, 'communityChat'), {
-            userId: window.appState.currentUser.uid,
-            userName: userName,
-            text: text,
-            isAdmin: isAdmin,
-            type: 'message',
-            timestamp: Date.now()
-        });
-    } catch(err) {
-        console.error("Chat error: ", err);
-    }
-};
-
-window.sendAdminAnnouncement = async function() {
-    const input = document.getElementById('adminAnnouncementInput');
-    if(!input) return;
-    const text = input.value.trim();
-    if(!text) return;
-    
-    try {
-        await push(ref(db, 'communityChat'), {
-            userId: window.appState.currentUser.uid,
-            userName: 'Admin',
-            text: text,
-            isAdmin: true,
-            type: 'announcement', 
-            timestamp: Date.now()
-        });
-        input.value = '';
-        alert("Announcement sent to Global Community!");
-    } catch(err) {
-        alert("Failed: " + err.message);
-    }
-};
-
-const dbBlogsRef = ref(db, 'blogs');
-onValue(dbBlogsRef, (snapshot) => {
-    window.appState.blogsList = [];
-    if (snapshot.exists()) {
-        const data = snapshot.val();
-        for (let key in data) {
-            window.appState.blogsList.push({ id: key, ...data[key] });
-        }
-    }
-    renderBlogs();
-    if (typeof window.renderAdminBlogsList === 'function') {
-        window.renderAdminBlogsList();
-    }
-    if (typeof window.renderHomeBlogSlider === 'function') {
-        window.renderHomeBlogSlider();
-    }
-});
-
-function renderBlogs() {
-    const container = document.getElementById('blogsContainer');
-    const pagControls = document.getElementById('blogPaginationControls');
-    if (!container) return;
-    container.innerHTML = '';
-
-    let filtered = window.appState.blogsList;
-
-    if (window.appState.currentBlogFilter !== 'All') {
-        filtered = filtered.filter(b => b.category === window.appState.currentBlogFilter);
-    }
-
-    const searchVal = (document.getElementById('desktopSearch')?.value || document.getElementById('mobileSearch')?.value || '').toLowerCase();
-    if (searchVal) {
-        filtered = filtered.filter(b => b.title.toLowerCase().includes(searchVal) || (b.excerpt || '').toLowerCase().includes(searchVal));
-    }
-
-    filtered.sort((a, b) => b.createdAt - a.createdAt);
-
-    if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500">No blog posts found matching your criteria.</div>`;
-        if(pagControls) pagControls.classList.add('hidden');
-        return;
-    }
-
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(filtered.length / itemsPerPage);
-    
-    if(window.appState.currentBlogPage > totalPages) {
-        window.appState.currentBlogPage = totalPages || 1;
-    }
-
-    const startIndex = (window.appState.currentBlogPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedItems = filtered.slice(startIndex, endIndex);
-
-    if (filtered.length > itemsPerPage) {
-        if(pagControls) pagControls.classList.remove('hidden');
-        const btnPrev = document.getElementById('btnPrevBlog');
-        const btnNext = document.getElementById('btnNextBlog');
-        const pageNum = document.getElementById('blogPageNumber');
-
-        if (window.appState.currentBlogPage === 1) {
-            if(btnPrev) btnPrev.classList.add('hidden');
-        } else {
-            if(btnPrev) btnPrev.classList.remove('hidden');
-        }
-
-        if (window.appState.currentBlogPage === totalPages) {
-            if(btnNext) btnNext.classList.add('hidden');
-        } else {
-            if(btnNext) btnNext.classList.remove('hidden');
-        }
-
-        if(pageNum) pageNum.innerText = `${window.appState.currentBlogPage} / ${totalPages}`;
-    } else {
-        if(pagControls) pagControls.classList.add('hidden');
-    }
-
-    paginatedItems.forEach(blog => {
-        const card = document.createElement('article');
-        card.className = "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between transition hover:shadow-md cursor-pointer";
-        card.onclick = () => window.openBlogDetail(blog.id);
-
-        const finalImg = window.resolveImageSrc(blog.imageURL);
-        const dateStr = new Date(blog.createdAt).toLocaleDateString();
-        const blogCat = blog.category || 'AI Guide';
-
-        card.innerHTML = `
-            <img src="${finalImg}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';" alt="${blog.title}" class="w-full h-48 object-cover">
-            <div class="p-5 flex-grow flex flex-col justify-between space-y-3">
-                <div class="space-y-2">
-                    <span class="text-[10px] bg-brand-500/10 text-brand-500 font-bold px-2 py-0.5 rounded-full uppercase">${blogCat}</span>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white line-clamp-2">${blog.title}</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-3">${(blog.excerpt || blog.content.substring(0, 100)).replace(/<[^>]+>/g, '')}...</p>
-                </div>
-                <div class="flex justify-between items-center text-[10px] text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <span><i class="fa-regular fa-calendar mr-1"></i>${dateStr}</span>
-                    <span class="font-bold text-brand-500">Read More ➔</span>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-window.renderBlogs = renderBlogs;
-
-window.changeBlogPage = function(direction) {
-    window.appState.currentBlogPage += direction;
-    renderBlogs();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-window.filterBlogCategory = function(cat) {
-    window.appState.currentBlogFilter = cat;
-    window.appState.currentBlogPage = 1; 
-    document.querySelectorAll('.blog-category-btn').forEach(btn => {
-        if (btn.getAttribute('data-blog-category') === cat) {
-            btn.classList.add('bg-brand-500', 'text-white');
-            btn.classList.remove('bg-white', 'dark:bg-slate-900', 'border-slate-200', 'dark:border-slate-800');
-        } else {
-            btn.classList.remove('bg-brand-500', 'text-white');
-            btn.classList.add('bg-white', 'dark:bg-slate-900', 'border-slate-200', 'dark:border-slate-800');
-        }
-    });
-    renderBlogs();
-}
-
-function parseSEOContent(text) {
-    if (!text || !text.trim()) return '';
-    if (text.startsWith('### ')) return `<h4 class="text-md font-bold mt-4 mb-2 text-slate-800 dark:text-slate-200">${text.substring(4)}</h4>`;
-    if (text.startsWith('## ')) return `<h3 class="text-lg font-bold mt-5 mb-2 text-brand-500">${text.substring(3)}</h3>`;
-    if (text.startsWith('# ')) return `<h2 class="text-xl font-extrabold mt-6 mb-3 text-slate-900 dark:text-white">${text.substring(2)}</h2>`;
-    if (text.match(/<[^>]+>/)) return `<div class="mb-4 text-slate-700 dark:text-slate-300">${text}</div>`; 
-    return `<p class="mb-4 text-slate-700 dark:text-slate-300">${text}</p>`;
-}
-
-window.openBlogDetail = function(id) {
-    const blog = window.appState.blogsList.find(b => b.id === id);
-    if (!blog) return;
-
-    window.openModal('blogDetailModal');
-
-    const blogDetailTitle = document.getElementById('blogDetailTitle');
-    if (blogDetailTitle) blogDetailTitle.innerText = blog.title;
-
-    const blogDetailCategoryTag = document.getElementById('blogDetailCategoryTag');
-    if (blogDetailCategoryTag) blogDetailCategoryTag.innerText = blog.category || 'AI Guide';
-    
-    const resolvedImg = window.resolveImageSrc(blog.imageURL);
-    const blogImg = document.getElementById('blogDetailImg');
-    if (blogImg) {
-        blogImg.src = resolvedImg;
-        blogImg.onerror = function() {
-            this.onerror = null;
-            this.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
-        };
-    }
-
-    const dateStr = new Date(blog.createdAt).toLocaleDateString();
-    const blogDetailMeta = document.getElementById('blogDetailMeta');
-    if (blogDetailMeta) {
-        blogDetailMeta.innerText = `Published: ${dateStr} | Author: ${blog.author || 'Nazim Mustafa'}`;
-    }
-    
-    const paragraphs = (blog.content || '').split('\n').filter(p => p.trim());
-    const midIndex = Math.ceil(paragraphs.length / 2);
-    
-    const topHtml = paragraphs.slice(0, midIndex).map(p => parseSEOContent(p)).join('');
-    const bottomHtml = paragraphs.slice(midIndex).map(p => parseSEOContent(p)).join('');
-
-    const contentTop = document.getElementById('blogDetailContentTop');
-    const contentBottom = document.getElementById('blogDetailContentBottom');
-    
-    if (contentTop) contentTop.innerHTML = topHtml;
-    if (contentBottom) contentBottom.innerHTML = bottomHtml;
-
-    const centerImgEl = document.getElementById('blogDetailCenterImg');
-    if (centerImgEl) {
-        if (blog.centerImageURL && blog.centerImageURL.trim() !== '') {
-            centerImgEl.src = window.resolveImageSrc(blog.centerImageURL);
-            centerImgEl.classList.remove('hidden');
-        } else {
-            centerImgEl.classList.add('hidden');
-        }
-    }
-
-    window.injectHtmlWithScripts('adTopContainer', window.appState.ads.top);
-    window.injectHtmlWithScripts('adCenterContainer', window.appState.ads.center);
-    window.injectHtmlWithScripts('adMultiplexContainer', window.appState.ads.multiplex);
-    window.injectHtmlWithScripts('adBottomContainer', window.appState.ads.bottom);
-
-    window.updatePageMetadata(blog.title, blog.excerpt || blog.content.substring(0, 150).replace(/<[^>]+>/g, ''), blog.keywords || "AI Prompts, Guide, Update");
-};
-
-function renderAdminBlogsList() {
-    const table = document.getElementById('adminBlogsListTable');
-    if (!table) return;
-    table.innerHTML = '';
-
-    if (window.appState.blogsList.length === 0) {
-        table.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-500">No blog posts found.</td></tr>`;
-        return;
-    }
-
-    window.appState.blogsList.forEach(blog => {
-        const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900";
-        tr.innerHTML = `
-            <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100 text-xs">${blog.title}</td>
-            <td class="px-4 py-3 text-slate-500 text-xs">${blog.category || 'N/A'}</td>
-            <td class="px-4 py-3 text-slate-500 text-xs">${new Date(blog.createdAt).toLocaleDateString()}</td>
-            <td class="px-4 py-3 space-x-2 text-xs">
-                <button onclick="window.editBlog('${blog.id}')" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-2 py-1 rounded">Edit</button>
-                <button onclick="window.deleteBlog('${blog.id}')" class="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded">Delete</button>
-            </td>
-        `;
-        table.appendChild(tr);
-    });
-}
-window.renderAdminBlogsList = renderAdminBlogsList;
-
-const blogFormEl = document.getElementById('blogForm');
-if (blogFormEl) {
-    blogFormEl.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const editId = document.getElementById('editBlogId').value;
-        const title = document.getElementById('bTitle').value;
-        const category = document.getElementById('bCategory').value;
-        const keywords = document.getElementById('bKeywords').value.trim();
-        const imageURL = document.getElementById('bImageURL').value.trim();
-        const centerImageURL = document.getElementById('bCenterImageURL').value.trim();
-        const excerpt = document.getElementById('bExcerpt').value;
-        const content = document.getElementById('bContent').value;
-
-        const payload = {
-            title: title,
-            category: category,
-            keywords: keywords,
-            imageURL: imageURL,
-            centerImageURL: centerImageURL,
-            excerpt: excerpt,
-            content: content,
-            author: "Nazim Mustafa",
-            createdAt: editId ? (window.appState.blogsList.find(b => b.id === editId)?.createdAt || Date.now()) : Date.now()
-        };
-
-        try {
-            if (editId) {
-                await update(ref(db, `blogs/${editId}`), payload);
-                alert("Blog post updated successfully.");
-            } else {
-                const newBlogRef = push(ref(db, 'blogs'));
-                await set(newBlogRef, payload);
-                alert("New Blog post published successfully!");
-            }
-            window.resetBlogForm();
-            window.switchTab('blog');
-        } catch (err) {
-            alert("Failed to save blog: " + err.message);
-        }
-    });
-}
-
-window.editBlog = function(id) {
-    const blog = window.appState.blogsList.find(b => b.id === id);
-    if (blog) {
-        if(document.getElementById('editBlogId')) document.getElementById('editBlogId').value = blog.id;
-        if(document.getElementById('bTitle')) document.getElementById('bTitle').value = blog.title;
-        if(document.getElementById('bCategory')) document.getElementById('bCategory').value = blog.category || '';
-        if(document.getElementById('bKeywords')) document.getElementById('bKeywords').value = blog.keywords || '';
-        if(document.getElementById('bImageURL')) document.getElementById('bImageURL').value = blog.imageURL || '';
-        if(document.getElementById('bCenterImageURL')) document.getElementById('bCenterImageURL').value = blog.centerImageURL || '';
-        if(document.getElementById('bExcerpt')) document.getElementById('bExcerpt').value = blog.excerpt || '';
-        if(document.getElementById('bContent')) document.getElementById('bContent').value = blog.content || '';
-
-        window.toggleAdminTab('blogs');
-    }
-};
-
-window.deleteBlog = async function(id) {
-    if (confirm("Are you sure you want to delete this blog post?")) {
-        try {
-            await remove(ref(db, `blogs/${id}`));
-            alert("Blog post deleted.");
-        } catch(err) {
-            alert("Delete failed: " + err.message);
-        }
-    }
-};
-
-function updateAuthUI(isLoggedIn, email = '', coins = 0) {
-    const dCoin = document.getElementById('desktopCoinDisplay');
-    const mCoin = document.getElementById('mobileMenuCoinDisplay');
-    const dEmail = document.getElementById('userEmailDisplay');
-    const mEmail = document.getElementById('mobileEmailDisplay');
-
-    const formattedValue = formatCoins(coins);
-
-    if(dCoin) dCoin.innerText = formattedValue;
-    if(mCoin) mCoin.innerText = formattedValue;
-    
-    document.querySelectorAll('.walletCoinTotal').forEach(el => {
-        if(el) el.innerText = formattedValue;
-    });
-
-    if (isLoggedIn) {
-        if(dEmail) dEmail.innerText = email;
-        if(mEmail) mEmail.innerText = email;
-        
-        document.querySelectorAll('.auth-logged-in').forEach(el => {
-            if(el) el.classList.remove('hidden');
-        });
-        document.querySelectorAll('.auth-logged-out').forEach(el => {
-            if(el) el.classList.add('hidden');
-        });
-    } else {
-        if(dEmail) dEmail.innerText = '';
-        if(mEmail) mEmail.innerText = '';
-        
-        document.querySelectorAll('.auth-logged-in').forEach(el => {
-            if(el) el.classList.add('hidden');
-        });
-        document.querySelectorAll('.auth-logged-out').forEach(el => {
-            if(el) el.classList.remove('hidden');
-        });
-    }
-}
-window.updateAuthUI = updateAuthUI; 
-
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         window.appState.currentUser = user;
-        const userRef = ref(db, `users/${user.uid}`);
-        onValue(userRef, (snapshot) => {
-            const data = snapshot.val();
-            window.appState.currentUserData = data;
-            if (data) {
-                window.updateAuthUI(true, user.email, data.coins || 0);
-                const adminContainer = document.getElementById('adminBtnContainer');
-                const mobAdminContainer = document.getElementById('mobileAdminBtn');
-
-                if (user.email === 'kazimmustafa38@gmail.com') {
-                    if(adminContainer) adminContainer.classList.remove('hidden');
-                    if(mobAdminContainer) mobAdminContainer.classList.remove('hidden');
-                } else {
-                    if(adminContainer) adminContainer.classList.add('hidden');
-                    if(mobAdminContainer) mobAdminContainer.classList.add('hidden');
-                }
-            }
-        });
-        syncUserTransactionsHistory();
-        syncUserPurchaseHistory(); 
-        triggerAutoApprovalCheck();
+        document.querySelectorAll('.auth-logged-in').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.auth-logged-out').forEach(el => el.classList.add('hidden'));
     } else {
         window.appState.currentUser = null;
-        window.appState.currentUserData = null;
-        window.updateAuthUI(false);
-        const adminContainer = document.getElementById('adminBtnContainer');
-        const mobAdminContainer = document.getElementById('mobileAdminBtn');
-        if(adminContainer) adminContainer.classList.add('hidden');
-        if(mobAdminContainer) mobAdminContainer.classList.add('hidden');
-        
-        const txList = document.getElementById('userTransactionsList');
-        const purList = document.getElementById('userPurchaseList');
-        if(txList) txList.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-slate-400">Please login to view history.</td></tr>';
-        if(purList) purList.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-slate-400">Please login to view history.</td></tr>';
+        document.querySelectorAll('.auth-logged-in').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.auth-logged-out').forEach(el => el.classList.remove('hidden'));
     }
 });
 
+// FETCH CATEGORIES
 const categoriesRef = ref(db, 'categories');
 onValue(categoriesRef, (snapshot) => {
     let parsedCats = [];
     if (snapshot.exists()) {
         parsedCats = normalizeCategories(snapshot.val());
     } else {
-        const defaultCats = ["Viral", "ChatGPT", "Midjourney", "Flux", "Runway", "Kling", "Veo", "IG Trend", "Boys", "Girls"];
-        set(categoriesRef, defaultCats);
+        const defaultCats = ["Viral", "ChatGPT", "Midjourney", "Flux", "Runway", "IG Trend"];
         parsedCats = defaultCats;
     }
     window.appState.categories = parsedCats;
     renderCategoryPills(window.appState.categories);
-    if(typeof window.renderCategoryDropdown === 'function') {
-        window.renderCategoryDropdown(window.appState.categories);
-    }
-});
-
-const blogCategoriesRef = ref(db, 'blogCategories');
-onValue(blogCategoriesRef, (snapshot) => {
-    let parsedBlogCats = [];
-    if (snapshot.exists()) {
-        parsedBlogCats = normalizeCategories(snapshot.val());
-    } else {
-        const defaultBlogCats = ["AI Tips", "Updates", "Guides"];
-        set(blogCategoriesRef, defaultBlogCats);
-        parsedBlogCats = defaultBlogCats;
-    }
-    window.appState.blogCategories = parsedBlogCats;
-    renderBlogCategoryPills(window.appState.blogCategories);
-    renderBlogCategoryDropdown(window.appState.blogCategories);
-    if(typeof window.renderAdminBlogCategoryManager === 'function') {
-        window.renderAdminBlogCategoryManager(window.appState.blogCategories);
-    }
 });
 
 function renderCategoryPills(categories) {
@@ -1601,7 +527,7 @@ function renderCategoryPills(categories) {
         const isActive = window.appState.currentFilter === filterVal;
         btn.className = isActive 
             ? "category-btn bg-brand-500 text-white px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition shadow-sm"
-            : "category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition text-slate-900 dark:text-slate-100";
+            : "category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 border-slate-700 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition text-slate-900 dark:text-slate-100";
         
         btn.innerText = catName;
         btn.setAttribute('data-category', filterVal);
@@ -1618,162 +544,7 @@ function renderCategoryPills(categories) {
     });
 }
 
-window.renderCategoryDropdown = function(categories) {
-    const select = document.getElementById('pCategory');
-    const uSelect = document.getElementById('uCategory');
-    
-    if(select) select.innerHTML = '';
-    if(uSelect) uSelect.innerHTML = '';
-    
-    const uniqueCats = Array.from(new Set(categories));
-    
-    uniqueCats.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.innerText = cat;
-        if(select) select.appendChild(opt);
-
-        const uOpt = document.createElement('option');
-        uOpt.value = cat;
-        uOpt.innerText = cat;
-        if(uSelect) uSelect.appendChild(uOpt);
-    });
-};
-
-function renderBlogCategoryPills(categories) {
-    const container = document.getElementById('blogCategoryFiltersContainer');
-    if(!container) return;
-    container.innerHTML = '';
-
-    const allBtn = document.createElement('button');
-    allBtn.onclick = () => window.filterBlogCategory('All');
-    allBtn.className = "blog-category-btn bg-brand-500 text-white px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition";
-    allBtn.innerText = "All Articles";
-    allBtn.setAttribute('data-blog-category', 'All');
-    container.appendChild(allBtn);
-
-    const uniqueBlogCats = Array.from(new Set(categories));
-    uniqueBlogCats.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.onclick = () => window.filterBlogCategory(cat);
-        btn.className = "blog-category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition text-slate-900 dark:text-slate-100";
-        btn.innerText = cat;
-        btn.setAttribute('data-blog-category', cat);
-        container.appendChild(btn);
-    });
-}
-
-function renderBlogCategoryDropdown(categories) {
-    const select = document.getElementById('bCategory');
-    if(!select) return;
-    select.innerHTML = '';
-    const uniqueBlogCats = Array.from(new Set(categories));
-    uniqueBlogCats.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.innerText = cat;
-        select.appendChild(opt);
-    });
-}
-
-function syncUserTransactionsHistory() {
-    if (!window.appState.currentUser) return;
-    const txRef = ref(db, 'transactions');
-    onValue(txRef, (snapshot) => {
-        const list = document.getElementById('userTransactionsList');
-        if(!list) return;
-        list.innerHTML = '';
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            let itemsFound = false;
-            for (let key in data) {
-                const tx = data[key];
-                if (tx.userId === window.appState.currentUser.uid) {
-                    itemsFound = true;
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900";
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 font-mono text-xs text-brand-500 font-bold">${tx.tid || 'N/A'}</td>
-                        <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">${tx.senderInfo || 'N/A'}</td>
-                        <td class="px-4 py-3 font-bold text-amber-500">${formatCoins(tx.amountCoins)}</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-500/10 text-brand-500">${tx.paymentStatus}</span></td>
-                    `;
-                    list.appendChild(tr);
-                }
-            }
-            if (!itemsFound) {
-                list.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-slate-400">No transactions recorded yet.</td></tr>';
-            }
-        } else {
-            list.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-slate-400">No transactions recorded yet.</td></tr>';
-        }
-    });
-}
-
-function syncUserPurchaseHistory() {
-    if (!window.appState.currentUser) return;
-    const logRef = ref(db, `purchaseLogs/${window.appState.currentUser.uid}`);
-    onValue(logRef, (snapshot) => {
-        const list = document.getElementById('userPurchaseList');
-        if(!list) return;
-        list.innerHTML = '';
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            let itemsFound = false;
-            for (let key in data) {
-                const log = data[key];
-                itemsFound = true;
-                const dateStr = new Date(log.timestamp).toLocaleDateString() + ' ' + new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900";
-                tr.innerHTML = `
-                    <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">${log.promptTitle}</td>
-                    <td class="px-4 py-3 text-red-500 font-bold">-${formatCoins(log.amountCoins)}</td>
-                    <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">${dateStr}</td>
-                `;
-                list.appendChild(tr);
-            }
-            if (!itemsFound) {
-                list.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-slate-400">No premium records yet.</td></tr>';
-            }
-        } else {
-            list.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-slate-400">No premium records yet.</td></tr>';
-        }
-    });
-}
-
-async function triggerAutoApprovalCheck() {
-    try {
-        const txRef = ref(db, 'transactions');
-        const snapshot = await get(txRef);
-        if (snapshot.exists()) {
-            const transactions = snapshot.val();
-            const now = Date.now();
-            const twentyFourHours = 24 * 60 * 60 * 1000;
-
-            for (let key in transactions) {
-                const tx = transactions[key];
-                if (tx.paymentStatus === 'pending' && (now - tx.timestamp) > twentyFourHours) {
-                    await update(ref(db, `transactions/${key}`), { paymentStatus: 'auto-approved' });
-                    
-                    const userRef = ref(db, `users/${tx.userId}/coins`);
-                    await runTransaction(userRef, (currentCoins) => {
-                        return (currentCoins || 0) + tx.amountCoins;
-                    });
-                }
-            }
-        }
-    } catch (err) {
-        console.warn("Auto approval trace: ", err.message);
-    }
-}
-
-setInterval(() => {
-    if (window.appState.currentUser) {
-        triggerAutoApprovalCheck();
-    }
-}, 60000);
-
+// PROMPTS LISTING & RENDER (100% FREE)
 const promptsRef = ref(db, 'prompts');
 onValue(promptsRef, (snapshot) => {
     window.appState.promptsList = [];
@@ -1784,41 +555,19 @@ onValue(promptsRef, (snapshot) => {
         }
     }
     renderPrompts();
-    if(typeof window.renderVideoPrompts === 'function') {
-        window.renderVideoPrompts();
-    }
-});
-
-const userPromptsRef = ref(db, 'userPrompts');
-onValue(userPromptsRef, (snapshot) => {
-    window.appState.userPromptsList = [];
-    if (snapshot.exists()) {
-        const data = snapshot.val();
-        for (let key in data) {
-            window.appState.userPromptsList.push({ id: key, ...data[key] });
-        }
-    }
-    if (typeof window.renderUserPrompts === 'function') {
-        window.renderUserPrompts();
-    }
 });
 
 function renderPrompts() {
     const grid = document.getElementById('promptsGrid');
     const countText = document.getElementById('promptsCount');
-    const pagControls = document.getElementById('paginationControls');
     
     if(!grid) return;
     grid.innerHTML = '';
-
-    // Mobile pe 2 columns (left right), tablet pe 3, desktop pe 4 columns
     grid.className = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4";
 
     let filtered = window.appState.promptsList;
 
-    if (window.appState.viewMode === 'discover') {
-        filtered = window.appState.promptsList.filter(p => p.isTrending === true);
-    } else if (window.appState.currentFilter === 'Video Prompts') {
+    if (window.appState.currentFilter === 'Video Prompts') {
         filtered = window.appState.promptsList.filter(p => p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i)));
     } else if (window.appState.currentFilter === 'Image Prompts') {
         filtered = window.appState.promptsList.filter(p => p.mediaType !== 'video' && (!p.imageURL || !p.imageURL.match(/\.(mp4|webm|ogg)$/i)));
@@ -1831,110 +580,25 @@ function renderPrompts() {
     if (searchVal) {
         filtered = filtered.filter(p => 
             p.title.toLowerCase().includes(searchVal) || 
-            (p.description && p.description.toLowerCase().includes(searchVal)) || 
-            (p.tags && p.tags.toLowerCase().includes(searchVal))
+            (p.description && p.description.toLowerCase().includes(searchVal))
         );
     }
 
-    filtered.sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1;
-        if (!a.isPinned && b.isPinned) return 1;
-        return (b.views || 0) - (a.views || 0);
-    });
+    if(countText) countText.innerText = `${filtered.length} free prompts`;
 
-    if(countText) {
-        if (searchVal) {
-            countText.innerHTML = `<span class="bg-brand-500/10 text-brand-500 px-2 py-1 rounded-md font-bold shadow-sm">${filtered.length} Found</span>`;
-        } else {
-            countText.innerText = `${filtered.length} prompts`;
-        }
-    }
-
-    if (filtered.length === 0) {
-        grid.innerHTML = `
-            <div class="col-span-full py-16 flex flex-col items-center justify-center text-center animate-fade-in w-full">
-                <i class="fa-solid fa-face-frown-open text-4xl text-slate-300 dark:text-slate-600 mb-4 animate-bounce"></i>
-                <h3 class="text-xl font-bold text-slate-700 dark:text-slate-300">No Results Found</h3>
-                <p class="text-sm text-slate-500 mt-2">Try searching with different keywords.</p>
-            </div>
-        `;
-        if(pagControls) pagControls.classList.add('hidden');
-        return;
-    }
-
-    const itemsPerPage = 8;
-    const totalPages = Math.ceil(filtered.length / itemsPerPage);
-    
-    if(window.appState.currentPage > totalPages) {
-        window.appState.currentPage = totalPages || 1;
-    }
-
-    const startIndex = (window.appState.currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedItems = filtered.slice(startIndex, endIndex);
-
-    if (filtered.length > itemsPerPage) {
-        if(pagControls) pagControls.classList.remove('hidden');
-        const btnPrev = document.getElementById('btnPrev');
-        const btnNext = document.getElementById('btnNext');
-        const pageNumber = document.getElementById('pageNumber');
-
-        if (window.appState.currentPage === 1) {
-            if(btnPrev) btnPrev.classList.add('hidden');
-        } else {
-            if(btnPrev) btnPrev.classList.remove('hidden');
-        }
-
-        if (window.appState.currentPage === totalPages) {
-            if(btnNext) btnNext.classList.add('hidden');
-        } else {
-            if(btnNext) btnNext.classList.remove('hidden');
-        }
-
-        if(pageNumber) pageNumber.innerText = `${window.appState.currentPage} / ${totalPages}`;
-    } else {
-        if(pagControls) pagControls.classList.add('hidden');
-    }
-
-    paginatedItems.forEach(p => {
-        let costLabel = 'Free';
-        if (p.type === 'paid') costLabel = `<span class="text-amber-400"><i class="fa-solid fa-coins mr-1"></i>${formatCoins(p.priceCoins)}</span>`;
-        if (p.type === 'ad_or_coins') costLabel = `<span class="text-purple-400"><i class="fa-solid fa-link mr-1"></i>Ad / Paid</span>`;
-
+    filtered.forEach(p => {
         const card = document.createElement('article'); 
         card.className = "relative overflow-hidden aspect-[2/3] rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
         card.onclick = () => window.openPromptDetail(p.id);
 
         const finalUrl = window.resolveImageSrc(p.imageURL);
-        const optimizedAltText = `${p.title} - ${p.tags || 'Viral'} AI Prompt`;
-        const finalThumbImg = p.thumbnailURL ? window.resolveImageSrc(p.thumbnailURL) : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
-
         const isVideo = p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i));
-        let mediaHTML = '';
-        
-        if (isVideo) {
-            mediaHTML = `<video src="${finalUrl}" poster="${finalThumbImg}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300" muted playsinline preload="none" loop onmouseover="let pl=this.play(); if(pl)pl.catch(()=>{});" onmouseout="this.pause()"></video>`;
-        } else {
-            mediaHTML = `<img src="${finalUrl}" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';" alt="${optimizedAltText}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300">`;
-        }
-
-        let displayTitle = searchVal ? window.highlightText(p.title, searchVal) : p.title;
-        let displayTags = searchVal && p.tags ? window.highlightText(p.tags, searchVal) : (p.tags || 'General');
 
         card.innerHTML = `
-            ${mediaHTML}
-            <div class="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1 z-10">
-                ${p.isPinned ? '<span class="bg-amber-500 text-[8px] font-extrabold text-slate-950 px-1.5 py-0.5 rounded-full shadow uppercase">Pinned</span>' : ''}
-            </div>
-            <span class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-slate-950/80 backdrop-blur text-[8px] px-2 py-0.5 rounded-full font-bold text-slate-200 z-10">
-                ${costLabel}
-            </span>
-            <div class="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex flex-col justify-end min-h-[50%] rounded-b-2xl sm:rounded-b-3xl pointer-events-none z-10">
-                <h3 class="text-xs sm:text-sm font-bold text-white leading-tight line-clamp-2">${displayTitle}</h3>
-                <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-300 font-semibold">
-                    <span><i class="fa-regular fa-eye mr-1"></i>${formatCoins(p.views || 0)}</span>
-                    <span>${isVideo ? '<i class="fa-solid fa-video text-brand-400 mr-1"></i>' : ''}#${displayTags}</span>
-                </div>
+            ${isVideo ? `<video src="${finalUrl}" class="absolute inset-0 w-full h-full object-cover" muted playsinline loop></video>` : `<img src="${finalUrl}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover">`}
+            <span class="absolute top-2 right-2 bg-emerald-500/90 text-[8px] px-2 py-0.5 rounded-full font-bold text-white z-10">FREE</span>
+            <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 to-transparent z-10">
+                <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2">${p.title}</h3>
             </div>
         `;
         grid.appendChild(card);
@@ -1942,695 +606,37 @@ function renderPrompts() {
 }
 window.renderPrompts = renderPrompts;
 
-window.renderUserPrompts = function() {
-    const grid = document.getElementById('userPromptsGrid');
-    const countText = document.getElementById('userPromptsCount');
-    const pagControls = document.getElementById('userPaginationControls');
-    
-    if(!grid) return;
-    grid.innerHTML = '';
-
-    // Mobile pe 2 columns (left right), tablet pe 3, desktop pe 4 columns
-    grid.className = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4";
-
-    let filtered = window.appState.userPromptsList;
-    
-    const searchVal = (document.getElementById('desktopSearch')?.value || document.getElementById('mobileSearch')?.value || '').toLowerCase();
-    
-    if (searchVal) {
-        filtered = filtered.filter(p => 
-            p.title.toLowerCase().includes(searchVal) || 
-            (p.description && p.description.toLowerCase().includes(searchVal)) || 
-            (p.tags && p.tags.toLowerCase().includes(searchVal))
-        );
-    }
-
-    filtered.sort((a, b) => b.timestamp - a.timestamp);
-
-    if(countText) {
-        countText.innerText = `${filtered.length} community prompts`;
-    }
-
-    if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500">No community creations yet. Be the first to upload!</div>`;
-        if(pagControls) pagControls.classList.add('hidden');
-        return;
-    }
-
-    const itemsPerPage = 8;
-    const totalPages = Math.ceil(filtered.length / itemsPerPage);
-    
-    if(window.appState.currentUserPage > totalPages) {
-        window.appState.currentUserPage = totalPages || 1;
-    }
-
-    const startIndex = (window.appState.currentUserPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedItems = filtered.slice(startIndex, endIndex);
-
-    if (filtered.length > itemsPerPage) {
-        if(pagControls) pagControls.classList.remove('hidden');
-        const btnPrev = document.getElementById('userBtnPrev');
-        const btnNext = document.getElementById('userBtnNext');
-        const pageNumber = document.getElementById('userPageNumber');
-
-        if (window.appState.currentUserPage === 1) {
-            if(btnPrev) btnPrev.classList.add('hidden');
-        } else {
-            if(btnPrev) btnPrev.classList.remove('hidden');
-        }
-
-        if (window.appState.currentUserPage === totalPages) {
-            if(btnNext) btnNext.classList.add('hidden');
-        } else {
-            if(btnNext) btnNext.classList.remove('hidden');
-        }
-
-        if(pageNumber) pageNumber.innerText = `${window.appState.currentUserPage} / ${totalPages}`;
-    } else {
-        if(pagControls) pagControls.classList.add('hidden');
-    }
-
-    paginatedItems.forEach(p => {
-        const card = document.createElement('article'); 
-        card.className = "relative overflow-hidden aspect-[2/3] rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
-        card.onclick = () => window.openUserPromptDetail(p.id);
-
-        const finalUrl = p.imageURL;
-        let displayTitle = searchVal ? window.highlightText(p.title, searchVal) : p.title;
-
-        card.innerHTML = `
-            <img src="${finalUrl}" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <span class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-purple-600/90 backdrop-blur text-[8px] px-2 py-0.5 rounded-full font-bold text-white z-10 shadow-sm">
-                <i class="fa-solid fa-user"></i> Community
-            </span>
-            <div class="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex flex-col justify-end min-h-[50%] rounded-b-2xl sm:rounded-b-3xl pointer-events-none z-10">
-                <h3 class="text-xs sm:text-sm font-bold text-white leading-tight line-clamp-2">${displayTitle}</h3>
-                <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-300 font-semibold">
-                    <span><i class="fa-regular fa-eye mr-1"></i>${formatCoins(p.views || 0)}</span>
-                    <span>#${p.tags || 'General'}</span>
-                </div>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-};
-
-window.renderVideoPrompts = function() {
-    const container = document.getElementById('videoPromptsContainer');
-    if (!container) return; 
-    container.innerHTML = '';
-    
-    const videoPrompts = window.appState.promptsList.filter(p => p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i)));
-    videoPrompts.sort((a, b) => b.timestamp - a.timestamp);
-    
-    if (videoPrompts.length === 0) {
-        container.innerHTML = '<div class="text-slate-500 text-sm py-4 w-full text-center">No video prompts uploaded yet.</div>';
-        return;
-    }
-
-    videoPrompts.forEach(p => {
-        let costLabel = 'Free';
-        if (p.type === 'paid') costLabel = `<span class="text-amber-400"><i class="fa-solid fa-coins mr-1"></i>${formatCoins(p.priceCoins)}</span>`;
-        if (p.type === 'ad_or_coins') costLabel = `<span class="text-purple-400"><i class="fa-solid fa-link mr-1"></i>Ad / Paid</span>`;
-
-        const finalUrl = window.resolveImageSrc(p.imageURL); 
-        const finalThumbImg = p.thumbnailURL ? window.resolveImageSrc(p.thumbnailURL) : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
-        
-        const card = document.createElement('article');
-        card.className = "snap-start shrink-0 w-[85%] md:w-[45%] lg:w-[30%] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col transition hover:shadow-md cursor-pointer group relative aspect-[16/9]";
-        card.onclick = () => window.openPromptDetail(p.id);
-        
-        card.innerHTML = `
-            <video src="${finalUrl}" poster="${finalThumbImg}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300" muted playsinline preload="none" loop onmouseover="let pl=this.play(); if(pl)pl.catch(()=>{});" onmouseout="this.pause()"></video>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none z-10"></div>
-            <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur text-[8px] px-2.5 py-0.5 rounded-full font-bold text-slate-200 z-20">
-                ${costLabel}
-            </span>
-            <div class="absolute bottom-3 left-3 right-3 z-20 flex flex-col pointer-events-none">
-                <span class="text-[9px] bg-brand-500/20 text-brand-400 font-bold px-2 py-0.5 rounded-full uppercase w-fit mb-1 border border-brand-500/30"><i class="fa-solid fa-video mr-1"></i>${p.tags || 'Video'}</span>
-                <h3 class="text-sm font-bold text-white line-clamp-1">${p.title}</h3>
-            </div>
-            <button class="absolute inset-0 m-auto w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-20 shadow">
-                <i class="fa-solid fa-play text-white"></i>
-            </button>
-        `;
-        container.appendChild(card);
-    });
-};
-
-window.changePage = function(direction) {
-    window.appState.currentPage += direction;
-    renderPrompts();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-window.changeUserPage = function(direction) {
-    window.appState.currentUserPage += direction;
-    window.renderUserPrompts();
-};
-
-window.filterCategory = function(cat) {
-    window.appState.currentFilter = cat;
-    window.appState.currentPage = 1; 
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        if (btn.getAttribute('data-category') === cat) {
-            btn.className = "category-btn bg-brand-500 text-white px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition shadow-sm";
-        } else {
-            btn.className = "category-btn bg-white border border-slate-200 hover:border-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-brand-500 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition text-slate-900 dark:text-slate-100";
-        }
-    });
-    renderPrompts();
-};
-
+// OPEN DETAIL MODAL (DIRECT COPY WITHOUT LOCKS)
 window.openPromptDetail = async function(id) {
     const p = window.appState.promptsList.find(item => item.id === id);
     if (!p) return;
 
-    const hasUnlocked = window.appState.currentUserData && window.appState.currentUserData.unlockedPrompts && window.appState.currentUserData.unlockedPrompts[p.id];
-    const isAdmin = window.appState.currentUser && window.appState.currentUser.email === 'kazimmustafa38@gmail.com';
-
-    if (p.type === 'paid') {
-        if (!hasUnlocked && !isAdmin) {
-            if (!window.appState.currentUser) {
-                alert("Please log in to purchase premium prompts.");
-                window.openAuthModal('login');
-                return;
-            }
-            const price = p.priceCoins;
-            const userCoins = window.appState.currentUserData.coins || 0;
-
-            if (userCoins < price) {
-                alert(`Insufficient Coins! Costs ${formatCoins(price)} coins.`);
-                window.switchTab('wallet');
-                return;
-            }
-
-            if (confirm(`Unlock "${p.title}" for ${formatCoins(price)} Coins?`)) {
-                try {
-                    const userCoinsRef = ref(db, `users/${window.appState.currentUser.uid}/coins`);
-                    await runTransaction(userCoinsRef, (current) => {
-                        return (current || 0) - price;
-                    });
-                    await set(ref(db, `users/${window.appState.currentUser.uid}/unlockedPrompts/${p.id}`), true);
-                    await push(ref(db, `purchaseLogs/${window.appState.currentUser.uid}`), {
-                        promptId: p.id,
-                        promptTitle: p.title,
-                        amountCoins: price,
-                        timestamp: Date.now()
-                    });
-                    alert("Unlocked successfully!");
-                } catch (err) {
-                    alert("Deduction failed: " + err.message);
-                    return;
-                }
-            } else {
-                return; 
-            }
-        }
-    }
-
-    if (p.type === 'ad_or_coins' && !hasUnlocked && !isAdmin) {
-        if (!window.appState.currentUser) {
-            alert("Please log in to unlock this premium content (Free via Ad or Paid).");
-            window.openAuthModal('login');
-            return;
-        }
-    }
-
     window.appState.currentDetailPrompt = p;
-    runTransaction(ref(db, `prompts/${id}/views`), (curr) => { return (curr || p.views || 0) + 1; });
-    window.updatePageMetadata(p.title, `Unlock and copy: ${p.title}.`);
+    window.updatePageMetadata(p.title, `Free prompt: ${p.title}`);
     window.openModal('promptDetailModal');
 
-    const finalDetailsImg = window.resolveImageSrc(p.imageURL);
-    const isVideo = p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i));
     const detailImgEl = document.getElementById('detailImg');
-
     if (detailImgEl) {
-        const parent = detailImgEl.parentNode;
-        parent.classList.add('relative'); 
-        
-        let oldVideo = document.getElementById('detailVideoEl');
-        let oldOverlay = document.getElementById('detailThumbOverlay');
-        
-        if (oldVideo) { oldVideo.pause(); oldVideo.removeAttribute('src'); oldVideo.load(); oldVideo.remove(); }
-        if (oldOverlay) { oldOverlay.remove(); }
-
-        if (isVideo) {
-            detailImgEl.classList.add('hidden');
-            const finalThumbImg = p.thumbnailURL ? window.resolveImageSrc(p.thumbnailURL) : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
-            
-            const thumbOverlay = document.createElement('div');
-            thumbOverlay.id = 'detailThumbOverlay';
-            thumbOverlay.className = "absolute inset-0 w-full h-full z-20 flex items-center justify-center cursor-pointer group bg-slate-900 rounded-xl overflow-hidden shadow-sm";
-            thumbOverlay.innerHTML = `
-                <img src="${finalThumbImg}" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe'">
-                <div class="relative w-16 h-16 bg-brand-500/90 text-white rounded-full flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(14,165,233,0.5)] transform group-hover:scale-110 transition duration-300">
-                    <i class="fa-solid fa-play ml-1"></i>
-                </div>
-            `;
-            
-            const videoEl = document.createElement('video');
-            videoEl.id = 'detailVideoEl';
-            videoEl.className = "w-full h-full object-cover rounded-xl shadow-inner max-h-[60vh] md:max-h-full bg-slate-955 absolute inset-0 z-10 hidden";
-            videoEl.controls = true;
-            videoEl.autoplay = false; 
-            videoEl.muted = false; 
-            videoEl.playsInline = true;
-            videoEl.src = finalDetailsImg;
-
-            parent.style.minHeight = '250px';
-            parent.insertBefore(videoEl, detailImgEl.nextSibling);
-            parent.insertBefore(thumbOverlay, videoEl);
-
-            thumbOverlay.onclick = () => {
-                thumbOverlay.classList.add('hidden');
-                videoEl.classList.remove('hidden');
-                videoEl.play().catch(e => console.warn("Playback error:", e));
-            };
-
-        } else {
-            detailImgEl.classList.remove('hidden');
-            detailImgEl.src = finalDetailsImg;
-            detailImgEl.onerror = function() {
-                this.onerror = null;
-                this.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
-            };
-        }
-    }
-
-    const downloadBtn = document.getElementById('downloadBtn');
-    if (downloadBtn) {
-        downloadBtn.href = finalDetailsImg || '#';
-        if (isVideo) {
-            downloadBtn.setAttribute('download', 'video.mp4');
-        } else {
-            downloadBtn.removeAttribute('download');
-        }
+        detailImgEl.src = window.resolveImageSrc(p.imageURL);
     }
 
     const detailTitle = document.getElementById('detailTitle');
     if (detailTitle) detailTitle.innerText = p.title;
 
-    const detailViews = document.getElementById('detailViews');
-    if (detailViews) detailViews.innerText = formatCoins((p.views || 0) + 1);
-
-    const detailTag = document.getElementById('detailTag');
-    if (detailTag) detailTag.innerText = p.tags || 'Trending';
-
-    const lockedOverlay = document.getElementById('lockedOverlay');
-    const adLockedOverlay = document.getElementById('adLockedOverlay');
-    const detailPromptText = document.getElementById('detailPromptText');
-    const actionButtons = document.querySelector('#promptContentArea .flex');
-
-    if (lockedOverlay) lockedOverlay.classList.add('hidden');
-    if (adLockedOverlay) adLockedOverlay.classList.add('hidden');
-    if (detailPromptText) detailPromptText.classList.remove('blur-sm', 'select-none');
-    if (actionButtons) actionButtons.classList.remove('hidden');
-
-    if (detailPromptText) {
-        detailPromptText.innerText = p.description;
-        if (window.appState.currentUser && window.appState.currentUser.email === 'kazimmustafa38@gmail.com') {
-            detailPromptText.innerHTML += `
-                <div class="mt-4 pt-4 border-t border-slate-250 dark:border-slate-800 flex gap-2">
-                    <button onclick="window.editPrompt('${p.id}'); window.closePromptDetailModal();" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded transition font-bold">Edit</button>
-                    <button onclick="window.deletePrompt('${p.id}'); window.closePromptDetailModal();" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded transition font-bold">Delete</button>
-                </div>
-            `;
-        }
-    }
-
-    if (p.type === 'ad_or_coins' && !hasUnlocked && !isAdmin) {
-        if (detailPromptText) {
-            detailPromptText.innerText = "This content is securely locked. Unlock to view full prompt.";
-            detailPromptText.classList.add('blur-sm', 'select-none');
-        }
-        if (actionButtons) actionButtons.classList.add('hidden');
-        
-        if (adLockedOverlay) {
-            adLockedOverlay.classList.remove('hidden');
-            const adLockedPrice = document.getElementById('adLockedPrice');
-            const btnAd = document.getElementById('btnUnlockViaAd');
-            const btnCoins = document.getElementById('btnUnlockViaCoins');
-            const statusMsg = document.getElementById('adUnlockStatusMsg');
-            
-            const cost = p.adPriceCoins || 50000;
-            const adLink = p.adLink || "https://toolswebsite205.blogspot.com";
-
-            if (adLockedPrice) adLockedPrice.innerText = cost;
-            if (statusMsg) statusMsg.classList.add('hidden');
-
-            if (btnAd) {
-                btnAd.onclick = function() {
-                    if (statusMsg) statusMsg.classList.remove('hidden');
-                    window.open(adLink, '_blank');
-                    
-                    const onWindowFocus = async () => {
-                        window.removeEventListener('focus', onWindowFocus);
-                        if (statusMsg) {
-                            statusMsg.innerHTML = '<i class="fa-solid fa-check text-emerald-500"></i> Unlocked successfully!';
-                        }
-                        
-                        try {
-                            await set(ref(db, `users/${window.appState.currentUser.uid}/unlockedPrompts/${p.id}`), true);
-                        } catch (e) { console.log(e); }
-
-                        setTimeout(() => {
-                            if (adLockedOverlay) adLockedOverlay.classList.add('hidden');
-                            if (detailPromptText) {
-                                detailPromptText.classList.remove('blur-sm', 'select-none');
-                                detailPromptText.innerText = p.description;
-                            }
-                            if (actionButtons) actionButtons.classList.remove('hidden');
-                        }, 1000);
-                    };
-                    
-                    setTimeout(() => {
-                        window.addEventListener('focus', onWindowFocus);
-                    }, 2000);
-                };
-            }
-
-            if (btnCoins) {
-                btnCoins.onclick = async function() {
-                    const userCoins = window.appState.currentUserData.coins || 0;
-                    if (userCoins < cost) {
-                        alert(`Insufficient Coins! You need ${formatCoins(cost)} coins.`);
-                        window.closePromptDetailModal();
-                        window.switchTab('wallet');
-                        return;
-                    }
-
-                    if (confirm(`Pay ${formatCoins(cost)} coins to unlock?`)) {
-                        btnCoins.disabled = true;
-                        btnCoins.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-                        try {
-                            const userCoinsRef = ref(db, `users/${window.appState.currentUser.uid}/coins`);
-                            await runTransaction(userCoinsRef, (current) => {
-                                return (current || 0) - cost;
-                            });
-                            await set(ref(db, `users/${window.appState.currentUser.uid}/unlockedPrompts/${p.id}`), true);
-                            await push(ref(db, `purchaseLogs/${window.appState.currentUser.uid}`), {
-                                promptId: p.id,
-                                promptTitle: p.title,
-                                amountCoins: cost,
-                                timestamp: Date.now()
-                            });
-                            
-                            if (adLockedOverlay) adLockedOverlay.classList.add('hidden');
-                            if (detailPromptText) {
-                                detailPromptText.classList.remove('blur-sm', 'select-none');
-                                detailPromptText.innerText = p.description;
-                            }
-                            if (actionButtons) actionButtons.classList.remove('hidden');
-                            alert("Unlocked successfully!");
-                        } catch (err) {
-                            alert("Deduction failed: " + err.message);
-                        } finally {
-                            btnCoins.disabled = false;
-                            btnCoins.innerHTML = `<i class="fa-solid fa-coins text-amber-500"></i> Pay <span id="adLockedPrice">${cost}</span> Coins`;
-                        }
-                    }
-                };
-            }
-        }
-    }
-
-    const adTopContainer = document.getElementById('modalUserAdTop');
-    const adBottomContainer = document.getElementById('modalUserAdBottom');
-    const socialBtn = document.getElementById('modalUserSocialBtn');
-    const aiRegenBtn = document.getElementById('btnAiRegenerateDisplay');
-
-    if (adTopContainer) {
-        adTopContainer.innerHTML = '';
-        adTopContainer.classList.add('hidden');
-    }
-    if (adBottomContainer) {
-        adBottomContainer.innerHTML = '';
-        adBottomContainer.classList.add('hidden');
-    }
-    if (socialBtn) {
-        socialBtn.href = '#';
-        socialBtn.classList.add('hidden');
-    }
-    if (aiRegenBtn) {
-        aiRegenBtn.classList.remove('hidden');
-    }
-};
-
-window.openUserPromptDetail = async function(id) {
-    const p = window.appState.userPromptsList.find(item => item.id === id);
-    if (!p) return;
-
-    window.appState.currentDetailPrompt = p;
-    runTransaction(ref(db, `userPrompts/${id}/views`), (curr) => { return (curr || p.views || 0) + 1; });
-    
-    window.updatePageMetadata(p.title, `Community prompt: ${p.title}.`);
-    window.openModal('promptDetailModal');
-
-    const finalDetailsImg = p.imageURL;
-    const detailImgEl = document.getElementById('detailImg');
-
-    if (detailImgEl) {
-        const parent = detailImgEl.parentNode;
-        parent.classList.add('relative'); 
-        
-        let oldVideo = document.getElementById('detailVideoEl');
-        let oldOverlay = document.getElementById('detailThumbOverlay');
-        
-        if (oldVideo) { 
-            oldVideo.pause(); 
-            oldVideo.removeAttribute('src'); 
-            oldVideo.load(); 
-            oldVideo.remove(); 
-        }
-        if (oldOverlay) {
-            oldOverlay.remove();
-        }
-        
-        detailImgEl.classList.remove('hidden');
-        detailImgEl.src = finalDetailsImg;
-    }
-
-    const downloadBtn = document.getElementById('downloadBtn');
-    if (downloadBtn) {
-        downloadBtn.href = finalDetailsImg || '#';
-        downloadBtn.removeAttribute('download');
-    }
-
-    const detailTitle = document.getElementById('detailTitle');
-    if (detailTitle) detailTitle.innerText = p.title;
-
-    const detailViews = document.getElementById('detailViews');
-    if (detailViews) detailViews.innerText = formatCoins((p.views || 0) + 1);
-
-    const detailTag = document.getElementById('detailTag');
-    if (detailTag) detailTag.innerText = p.tags || 'Community';
-    
-    const lockedOverlay = document.getElementById('lockedOverlay');
-    const adLockedOverlay = document.getElementById('adLockedOverlay');
-    if (lockedOverlay) lockedOverlay.classList.add('hidden'); 
-    if (adLockedOverlay) adLockedOverlay.classList.add('hidden');
-
     const detailPromptText = document.getElementById('detailPromptText');
     if (detailPromptText) {
+        detailPromptText.innerText = p.description || p.promptText;
         detailPromptText.classList.remove('blur-sm', 'select-none');
-        detailPromptText.innerText = p.description;
-    }
-
-    const actionButtons = document.querySelector('#promptContentArea .flex');
-    if (actionButtons) actionButtons.classList.remove('hidden');
-
-    const adTopContainer = document.getElementById('modalUserAdTop');
-    const adBottomContainer = document.getElementById('modalUserAdBottom');
-    const socialBtn = document.getElementById('modalUserSocialBtn');
-    const aiRegenBtn = document.getElementById('btnAiRegenerateDisplay');
-
-    if (adTopContainer) {
-        if (p.adsterraBanner) {
-            window.injectHtmlWithScripts('modalUserAdTop', p.adsterraBanner);
-            adTopContainer.classList.remove('hidden');
-        } else {
-            adTopContainer.innerHTML = '';
-            adTopContainer.classList.add('hidden');
-        }
-    }
-
-    if (adBottomContainer) {
-        if (p.adsterraNative) {
-            window.injectHtmlWithScripts('modalUserAdBottom', p.adsterraNative);
-            adBottomContainer.classList.remove('hidden');
-        } else {
-            adBottomContainer.innerHTML = '';
-            adBottomContainer.classList.add('hidden');
-        }
-    }
-
-    if (socialBtn) {
-        if (p.socialLink) {
-            socialBtn.href = p.socialLink;
-            socialBtn.classList.remove('hidden');
-        } else {
-            socialBtn.href = '#';
-            socialBtn.classList.add('hidden');
-        }
-    }
-
-    if(aiRegenBtn) {
-        aiRegenBtn.classList.add('hidden');
     }
 };
 
 window.copyToClipboard = function() {
     if (!window.appState.currentDetailPrompt) return;
     const promptEl = document.getElementById('detailPromptText');
-    if(!promptEl) return;
-    const text = promptEl.innerText;
-    const p = window.appState.currentDetailPrompt;
-
-    if (p.type === 'paid' || p.type === 'ad_or_coins') {
-        const hasUnlocked = window.appState.currentUserData && window.appState.currentUserData.unlockedPrompts && window.appState.currentUserData.unlockedPrompts[p.id];
-        const isAdmin = window.appState.currentUser && window.appState.currentUser.email === 'kazimmustafa38@gmail.com';
-        if (!hasUnlocked && !isAdmin) {
-            alert("Please unlock first.");
-            return;
-        }
-    }
-    window.safeCopy(text);
+    if(promptEl) window.safeCopy(promptEl.innerText);
 };
 
-window.regeneratePromptWithAI = async function() {
-    if (!window.appState.currentUser) {
-        alert("Please log in.");
-        window.openAuthModal('login');
-        return;
-    }
-
-    const cost = 50000;
-    const userCoins = window.appState.currentUserData?.coins || 0;
-
-    if (userCoins < cost) {
-        alert(`Insufficient Balance! Costs ${formatCoins(cost)} coins.`);
-        window.closePromptDetailModal();
-        window.switchTab('wallet');
-        return;
-    }
-
-    const apiSnap = await get(ref(db, 'settings/geminiApiKey'));
-    if (!apiSnap.exists() || !apiSnap.val()) {
-        alert("AI Engine is currently offline.");
-        return;
-    }
-    const apiKey = apiSnap.val();
-
-    const selectedStyle = document.getElementById('aiStyle').value;
-    const selectedLighting = document.getElementById('aiLighting').value;
-    const selectedLength = document.getElementById('aiLength').value;
-    const selectedStrength = document.getElementById('aiStrength').value;
-
-    const originalPromptText = window.appState.currentDetailPrompt ? window.appState.currentDetailPrompt.description : "";
-
-    const structuredInstructionPrompt = `
-        Analyze original prompt: "${originalPromptText}". Expand with selected features: Style: ${selectedStyle}, Lighting: ${selectedLighting}, Length: ${selectedLength}, Strength: ${selectedStrength}. Return enhanced prompt ONLY without any extra chat.
-    `;
-
-    if (confirm(`Regenerate for 50,000 Coins?`)) {
-        const btn = document.getElementById('btnGenerateAI');
-        const outContainer = document.getElementById('aiOutputContainer');
-        const outText = document.getElementById('aiOutputText');
-
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Generating...`;
-        outContainer.classList.remove('hidden');
-        outText.innerText = "Connecting...";
-
-        let logId = "";
-        let purchaseLogRef = null;
-
-        try {
-            const userCoinsRef = ref(db, `users/${window.appState.currentUser.uid}/coins`);
-            await runTransaction(userCoinsRef, (current) => {
-                return (current || 0) - cost;
-            });
-
-            logId = push(ref(db, `purchaseLogs/${window.appState.currentUser.uid}`)).key;
-            purchaseLogRef = ref(db, `purchaseLogs/${window.appState.currentUser.uid}/${logId}`);
-            await set(purchaseLogRef, {
-                promptId: window.appState.currentDetailPrompt ? window.appState.currentDetailPrompt.id : "ai-regenerate",
-                promptTitle: `AI Generation: ${window.appState.currentDetailPrompt ? window.appState.currentDetailPrompt.title : "Custom Prompt"}`,
-                amountCoins: cost,
-                timestamp: Date.now()
-            });
-
-            const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
-            let apiSuccess = false;
-            let generatedResponseText = "";
-
-            for (let modelName of models) {
-                outText.innerText = `Analyzing prompt structure...`;
-                try {
-                    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-                    const response = await fetch(endpoint, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: structuredInstructionPrompt
-                                }]
-                            }]
-                        })
-                    });
-
-                    if (response.ok) {
-                        const resJson = await response.json();
-                        generatedResponseText = resJson.candidates[0].content.parts[0].text;
-                        apiSuccess = true;
-                        break;
-                    }
-                } catch (err) {
-                    console.warn("Retrying model...");
-                }
-            }
-
-            if (apiSuccess) {
-                outText.innerText = generatedResponseText;
-                alert("AI prompt successfully regenerated!");
-            } else {
-                const refundCoinsRef = ref(db, `users/${window.appState.currentUser.uid}/coins`);
-                await runTransaction(refundCoinsRef, (current) => {
-                    return (current || 0) + cost;
-                });
-
-                if (purchaseLogRef) {
-                    await update(purchaseLogRef, {
-                        promptTitle: `AI Generation (Failed - Refunded)`
-                    });
-                }
-
-                outText.innerText = `Servers busy. Refunded successfully.`;
-                alert("Servers busy. Coins fully refunded!");
-            }
-
-        } catch (err) {
-            alert("Failed: " + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-microchip"></i> Generate Custom AI Prompt`;
-        }
-    }
-};
-
-window.copyAiOutput = function() {
-    const textEl = document.getElementById('aiOutputText');
-    if(!textEl) return;
-    const text = textEl.innerText;
-    if(!text || text.startsWith("Connecting") || text.startsWith("Error")) {
-        alert("Nothing valid to copy.");
-        return;
-    }
-    window.safeCopy(text);
+window.filterCategory = function(cat) {
+    window.appState.currentFilter = cat;
+    renderPrompts();
 };
