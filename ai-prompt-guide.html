@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Usage Guide - PromptKaro</title>
+    <meta name="description" content="Step-by-step guide on how to structure, tune, and execute AI prompts for maximum visual and text quality.">
+    <link rel="canonical" href="https://freeearningsonline.github.io/ai-prompt-guide.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { brand: { 500: '#0ea5e9' }, slate: { 955: '#090d16' } } } } }</script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans">
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 flex items-center px-6">
+        <a href="index.html" class="text-lg font-black">Prompt<span class="text-brand-500">Karo</span></a>
+    </header>
+    <main class="max-w-4xl mx-auto px-6 py-10 flex-grow space-y-6">
+        <h1 class="text-3xl font-black">AI Prompt Usage Guide</h1>
+
+        <section class="space-y-4 text-sm leading-relaxed">
+            <h2 class="text-xl font-bold">1. Structure of a Perfect Image Prompt</h2>
+            <p>To get photorealistic results, structure your prompts as: <code>[Subject] + [Environment/Background] + [Lighting Condition] + [Camera/Style Shot] + [Aspect Ratio Parameter]</code>.</p>
+
+            <h2 class="text-xl font-bold">2. Aspect Ratio Settings</h2>
+            <ul class="list-disc pl-5 space-y-1 text-slate-400">
+                <li><code>--ar 16:9</code> - Ideal for YouTube Thumbnails and Desktop Banners.</li>
+                <li><code>--ar 9:16</code> - Optimized for TikTok, Instagram Reels, and Shorts.</li>
+                <li><code>--ar 1:1</code> - Recommended for Profile Avatars and Square posts.</li>
+            </ul>
+
+            <h2 class="text-xl font-bold">3. Negative Prompts</h2>
+            <p>Incorporate negative prompts such as <code>blurry, distorted fingers, low resolution, overexposed</code> to exclude common AI artifacts.</p>
+        </section>
+    </main>
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500">
+        © 2026 PromptKaro. All rights reserved.
+    </footer>
+</body>
+</html>
