@@ -21,7 +21,7 @@ jobs:
         node-version: '18'
 
     - name: Generate Sitemap from Firebase
-      run: node generate-sitemap.js
+      run: node generate-sitemap.cjs
 
     - name: Commit and push if changed
       run: |
