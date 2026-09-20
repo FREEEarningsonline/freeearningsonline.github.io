@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-adsense-account" content="ca-pub-3071493838743593">
 
-    <!-- PRECONNECT FAST ASSETS -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <!-- PRECONNECT FOR MAXIMUM SPEED -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://aiprom-98a50-default-rtdb.firebaseio.com">
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+    <link rel="preconnect" href="https://aiprom-98a50-default-rtdb.firebaseio.com" crossorigin>
 
-    <!-- SEO, GEO & AEO METADATA -->
+    <!-- METADATA FOR SEO, GEO & AEO -->
     <title>PromptKaro - Free AI Prompt Sharing Platform & Library</title>
-    <meta name="description" content="Explore, copy, and share 100% free AI prompts for Midjourney v6, ChatGPT (GPT-4o), Flux AI, and Bing Creator. Updated daily with viral trends and guides.">
-    <meta name="keywords" content="AI Prompts, Midjourney Prompts, ChatGPT Prompts, Flux AI, Free AI Prompts, Bing 3D Name Art, PromptKaro">
+    <meta name="description" content="Explore, copy, and share 100% free AI prompts for Midjourney v6, ChatGPT (GPT-4o), Flux AI, and Bing Creator. Learn prompt engineering with our guides.">
+    <meta name="keywords" content="AI Prompts, Midjourney Prompts, ChatGPT Prompts, Flux AI, Free AI Prompts, Prompt Engineering Guide, PromptKaro">
     <meta name="author" content="Nazim Mustafa">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     
-    <!-- SINGLE CANONICAL URL -->
+    <!-- STRICT SINGLE CANONICAL URL -->
     <link rel="canonical" href="https://freeearningsonline.github.io/">
 
     <!-- OPEN GRAPH -->
@@ -34,14 +35,14 @@
     <meta name="twitter:description" content="Copy tested, high-quality AI image and text prompt formulas for Midjourney, ChatGPT, and Flux AI.">
     <meta name="twitter:image" content="https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png">
 
-    <!-- JSON-LD SCHEMA -->
+    <!-- JSON-LD STRUCTURED DATA -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "PromptKaro",
       "url": "https://freeearningsonline.github.io/",
-      "description": "Free AI prompt sharing platform for ChatGPT, Midjourney, Flux AI, and Bing Image Creator.",
+      "description": "Free AI prompt sharing platform and prompt engineering guide for ChatGPT, Midjourney, and Flux AI.",
       "publisher": {
         "@type": "Organization",
         "name": "PromptKaro",
@@ -57,7 +58,7 @@
     }
     </script>
 
-    <!-- TAILWIND CSS CDN (NON-BLOCKING) -->
+    <!-- NON-BLOCKING TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -73,12 +74,11 @@
         }
     </script>
 
-    <!-- FONT AWESOME ASYNC LOAD (EST SAVINGS ON RENDER BLOCKING) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <!-- OPTIMIZED FONT AWESOME (PREVENTS RENDER BLOCKING) -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 
     <style>
-        /* BEST PRACTICES & CLS PERFORMANCE FIXES */
         body { font-display: swap; text-rendering: optimizeLegibility; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
@@ -97,25 +97,25 @@
 
             <!-- DESKTOP SEARCH BAR -->
             <div class="hidden md:flex flex-1 max-w-md relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="desktopSearch" placeholder="Search prompts (e.g., 3D Name, Portrait, Viral)..." class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-9 pr-4 py-2.5 rounded-full border border-transparent focus:border-brand-500 focus:outline-none transition">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" aria-hidden="true"></i>
+                <input type="text" id="desktopSearch" placeholder="Search prompts (e.g., 3D Name, Portrait, Viral)..." aria-label="Search prompts" class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-9 pr-4 py-2.5 rounded-full border border-transparent focus:border-brand-500 focus:outline-none transition">
             </div>
 
             <!-- RIGHT HEADER CONTROLS -->
             <div class="flex items-center gap-2 sm:gap-3">
-                <button onclick="switchTab('home')" class="text-xs font-bold hover:text-brand-500 px-2 py-1" aria-label="Home Tab">Home</button>
-                <button onclick="switchTab('blog')" class="text-xs font-bold hover:text-brand-500 px-2 py-1" aria-label="Blog Tab">Blogs</button>
+                <button type="button" onclick="switchTab('home')" class="text-xs font-bold hover:text-brand-500 px-2 py-1" aria-label="Home Tab">Home</button>
+                <button type="button" onclick="switchTab('blog')" class="text-xs font-bold hover:text-brand-500 px-2 py-1" aria-label="Blog Tab">Blogs</button>
                 
-                <button onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center transition" aria-label="Toggle Dark Light Theme">
-                    <i id="themeIcon" class="fa-solid fa-sun text-amber-400"></i>
+                <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center transition" aria-label="Toggle Dark Light Theme">
+                    <i id="themeIcon" class="fa-solid fa-sun text-amber-400" aria-hidden="true"></i>
                 </button>
 
                 <div class="auth-logged-out flex items-center gap-2">
-                    <button onclick="openAuthModal('login')" class="text-xs font-bold bg-brand-500 text-white px-3.5 py-2 rounded-full hover:bg-brand-600 transition" aria-label="Login Account">Login</button>
+                    <button type="button" onclick="openAuthModal('login')" class="text-xs font-bold bg-brand-500 text-white px-3.5 py-2 rounded-full hover:bg-brand-600 transition" aria-label="Login Account">Login</button>
                 </div>
                 <div class="auth-logged-in hidden flex items-center gap-2">
-                    <button onclick="switchTab('userUpload')" class="text-xs font-bold bg-emerald-500 text-white px-3 py-1.5 rounded-full" aria-label="Upload Prompt"><i class="fa-solid fa-plus mr-1"></i> Upload</button>
-                    <button onclick="logout()" class="text-xs font-bold text-rose-500 px-2 py-1" aria-label="Logout Account"><i class="fa-solid fa-sign-out"></i></button>
+                    <button type="button" onclick="switchTab('userUpload')" class="text-xs font-bold bg-emerald-500 text-white px-3 py-1.5 rounded-full" aria-label="Upload Prompt"><i class="fa-solid fa-plus mr-1" aria-hidden="true"></i> Upload</button>
+                    <button type="button" onclick="logout()" class="text-xs font-bold text-rose-500 px-2 py-1" aria-label="Logout Account"><i class="fa-solid fa-sign-out" aria-hidden="true"></i></button>
                 </div>
             </div>
         </div>
@@ -123,8 +123,8 @@
         <!-- MOBILE SEARCH BAR -->
         <div class="md:hidden px-4 pb-3">
             <div class="relative w-full">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="mobileSearch" placeholder="Search prompts..." class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-9 pr-4 py-2 rounded-full border border-transparent focus:border-brand-500 focus:outline-none">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" aria-hidden="true"></i>
+                <input type="text" id="mobileSearch" placeholder="Search prompts..." aria-label="Search prompts mobile" class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-9 pr-4 py-2 rounded-full border border-transparent focus:border-brand-500 focus:outline-none">
             </div>
         </div>
     </header>
@@ -140,7 +140,7 @@
                 <div class="max-w-2xl space-y-3 relative z-10">
                     <span class="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">100% Free AI Prompt Library</span>
                     <h1 class="text-2xl sm:text-4xl font-black leading-tight">PromptKaro: Educational AI Prompts & Guides</h1>
-                    <p class="text-xs sm:text-sm text-blue-100 leading-relaxed">Learn prompt engineering techniques for Midjourney, ChatGPT, Flux, and Bing Creator with copy-paste formulas and visual showcases.</p>
+                    <p class="text-xs sm:text-sm text-blue-100 leading-relaxed">Copy tested, photorealistic prompt text for Midjourney v6, ChatGPT, Flux AI, and Bing Image Creator in 1-click.</p>
                 </div>
             </section>
 
@@ -173,7 +173,7 @@
         <section id="promptsSection" class="space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-fire text-amber-500"></i> Trending AI Prompts
+                    <i class="fa-solid fa-fire text-amber-500" aria-hidden="true"></i> Trending AI Prompts
                 </h2>
                 <span id="promptsCount" class="text-xs text-slate-500 font-medium">Loading...</span>
             </div>
@@ -181,12 +181,31 @@
             <div id="promptsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 min-h-[300px]">
                 <!-- Dynamically Rendered Prompts via script.js -->
             </div>
+            
+            <!-- SEO ARTICLE / HOMEPAGE GUIDE SECTION -->
+            <article class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm mt-10 space-y-5">
+                <header>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">AI Prompt Engineering Guide & Best Practices</h2>
+                    <p class="text-sm text-slate-500 mt-2">Master the art of generating photorealistic images and high-quality text using advanced AI prompts. Boost your workflow with structured formulas.</p>
+                </header>
+                <div class="space-y-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <section>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">How to Write the Perfect Prompt</h3>
+                        <p>Writing an effective prompt requires clarity and structure. Always start with a core subject, add environmental details, specify lighting conditions, and define the exact style (e.g., cinematic, 8k resolution, raw style). Use specific aspect ratio parameters like <code>--ar 16:9</code> for widescreen or <code>--ar 9:16</code> for mobile formats when using tools like Midjourney v6.</p>
+                    </section>
+                    
+                    <section>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">Why Use PromptKaro?</h3>
+                        <p>PromptKaro is a 100% free library offering tested, copy-paste ready prompt formulas for <strong>ChatGPT</strong>, <strong>Midjourney</strong>, <strong>Bing Image Creator</strong>, and <strong>Flux AI</strong>. Whether you need a viral 3D name art prompt, a professional marketing copy template, or hyper-realistic photography setups, our platform has you covered without any paywalls or hidden fees.</p>
+                    </section>
+                </div>
+            </article>
         </section>
 
         <!-- BLOGS SECTION CONTAINER -->
         <section id="blogSection" class="hidden space-y-4">
             <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
-                <i class="fa-solid fa-newspaper text-brand-500"></i> AI Guides & Tutorials
+                <i class="fa-solid fa-newspaper text-brand-500" aria-hidden="true"></i> AI Guides & Tutorials
             </h2>
             <div id="blogsContainer" class="grid md:grid-cols-3 gap-4">
                 <!-- Dynamic Blogs -->
@@ -198,19 +217,19 @@
             <h2 class="text-lg font-bold">Upload Your AI Prompt</h2>
             <form id="userUploadForm" class="space-y-3 text-xs">
                 <div>
-                    <label class="block font-bold mb-1">Title</label>
+                    <label for="uTitle" class="block font-bold mb-1">Title</label>
                     <input type="text" id="uTitle" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
                 </div>
                 <div>
-                    <label class="block font-bold mb-1">Category</label>
+                    <label for="uCategory" class="block font-bold mb-1">Category</label>
                     <input type="text" id="uCategory" placeholder="e.g. Viral, Midjourney" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
                 </div>
                 <div>
-                    <label class="block font-bold mb-1">Prompt Text</label>
+                    <label for="uDescription" class="block font-bold mb-1">Prompt Text</label>
                     <textarea id="uDescription" rows="4" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800"></textarea>
                 </div>
                 <div>
-                    <label class="block font-bold mb-1">Select Image</label>
+                    <label for="uImageFile" class="block font-bold mb-1">Select Image</label>
                     <input type="file" id="uImageFile" accept="image/*" required class="w-full text-slate-500">
                     <p id="uImageFileName" class="text-[10px] text-slate-400 mt-1"></p>
                 </div>
@@ -225,11 +244,11 @@
         <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl max-w-sm w-full border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex justify-between items-center">
                 <h3 id="authTitle" class="font-bold text-sm">Secure Login</h3>
-                <button onclick="closeAuthModal()" aria-label="Close Auth Modal"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeAuthModal()" aria-label="Close Auth Modal"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             <form id="authForm" class="space-y-3 text-xs">
-                <input type="email" id="authEmail" placeholder="Email Address" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
-                <input type="password" id="authPassword" placeholder="Password" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                <input type="email" id="authEmail" placeholder="Email Address" required aria-label="Email Address" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                <input type="password" id="authPassword" placeholder="Password" required aria-label="Password" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
                 <button type="submit" id="authSubmitBtn" class="w-full bg-brand-500 text-white font-bold py-2.5 rounded-xl">Login</button>
             </form>
         </div>
