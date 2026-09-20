@@ -94,8 +94,7 @@ window.appState = {
     currentFilter: 'All',
     currentBlogFilter: 'All',
     isLoginMode: true,
-    currentPage: 1,
-    currentUserPage: 1, 
+    displayedPromptsCount: 30, // Shuru mein sirf 30 load honge
     currentBlogPage: 1,
     viewMode: 'home', 
     navigationStack: [] 
@@ -149,6 +148,19 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // INFINITE SCROLL EVENT LISTENER
+    window.addEventListener('scroll', () => {
+        if (window.appState.viewMode !== 'home') return;
+        
+        // Agar user page ke bottom se 300px pehle pohanch jaye to aur prompts load karo
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
+            if (window.appState.displayedPromptsCount < window.appState.promptsList.length) {
+                window.appState.displayedPromptsCount += 10; // Scroll par +10 items load honge
+                renderPrompts();
+            }
+        }
+    });
+
     const urlParams = new URLSearchParams(window.location.search);
     const sharedPromptId = urlParams.get('prompt');
     const sharedBlogId = urlParams.get('blog');
@@ -191,8 +203,7 @@ function switchTab(tabId, isBack = false) {
             const el = document.getElementById(id);
             if(el) el.classList.remove('hidden');
         });
-        window.appState.currentPage = 1;
-        window.appState.currentUserPage = 1;
+        window.appState.displayedPromptsCount = 30; // Reset count
         if (typeof window.filterCategory === 'function') window.filterCategory('All');
         updatePageMetadata("Free AI Prompt Library", "Explore, copy, and share free trending AI prompts.");
     } 
@@ -223,8 +234,7 @@ window.handleSearch = function() {
         window.appState.currentBlogPage = 1;
         if(typeof window.renderBlogs === 'function') window.renderBlogs();
     } else {
-        window.appState.currentPage = 1;
-        window.appState.currentUserPage = 1;
+        window.appState.displayedPromptsCount = 30; // Reset search पर
         
         const homeExclusive = document.getElementById('homeExclusiveContent');
         
@@ -237,7 +247,6 @@ window.handleSearch = function() {
         }
         
         if(typeof window.renderPrompts === 'function') window.renderPrompts();
-        if(typeof window.renderUserPrompts === 'function') window.renderUserPrompts();
     }
 }
 
@@ -479,7 +488,7 @@ function renderCategoryPills(categories) {
     });
 }
 
-// PROMPTS LISTING & RENDER (NEW ADDED SHOW AT TOP / LATEST FIRST)
+// PROMPTS LISTING & RENDER (LAZY LOAD 30 FIRST, THEN INFINITE SCROLL)
 const promptsRef = ref(db, 'prompts');
 onValue(promptsRef, (snapshot) => {
     let tempPrompts = [];
@@ -490,10 +499,9 @@ onValue(promptsRef, (snapshot) => {
         }
     }
 
-    // Sort Prompts by Timestamp or Reverse Array so Latest / New Additions show on Top
+    // Sort Prompts by Timestamp (Latest First / Top Additions)
     tempPrompts.sort((a, b) => (b.timestamp || b.createdAt || 0) - (a.timestamp || a.createdAt || 0));
     
-    // Fallback: If no timestamp exists, reverse array order
     if (!tempPrompts[0]?.timestamp && !tempPrompts[0]?.createdAt) {
         tempPrompts.reverse();
     }
@@ -531,7 +539,10 @@ function renderPrompts() {
 
     if(countText) countText.innerText = `${filtered.length} free prompts`;
 
-    filtered.forEach((p, index) => {
+    // SLICE TO SHOW ONLY DISPLAYED COUNT (FIRST 30, THEN MORE ON SCROLL)
+    const itemsToDisplay = filtered.slice(0, window.appState.displayedPromptsCount);
+
+    itemsToDisplay.forEach((p, index) => {
         const card = document.createElement('article'); 
         card.className = "relative overflow-hidden aspect-[2/3] rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
         
@@ -540,11 +551,10 @@ function renderPrompts() {
         const finalUrl = window.resolveImageSrc(p.imageURL);
         const isVideo = p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i));
 
-        // Show "NEW" badge on top 5 latest prompts
         const isNew = index < 5;
 
         card.innerHTML = `
-            ${isVideo ? `<video src="${finalUrl}" class="absolute inset-0 w-full h-full object-cover" muted playsinline loop></video>` : `<img src="${finalUrl}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover">`}
+            ${isVideo ? `<video src="${finalUrl}" class="absolute inset-0 w-full h-full object-cover" muted playsinline loop></video>` : `<img src="${finalUrl}" alt="${p.title}" loading="lazy" class="absolute inset-0 w-full h-full object-cover">`}
             <div class="absolute top-2 right-2 flex gap-1 z-10">
                 ${isNew ? `<span class="bg-amber-500 text-[8px] px-2 py-0.5 rounded-full font-black text-slate-950 uppercase tracking-wide animate-pulse">NEW</span>` : ''}
                 <span class="bg-emerald-500/90 text-[8px] px-2 py-0.5 rounded-full font-bold text-white">FREE</span>
@@ -566,7 +576,7 @@ window.openUserPromptDetail = function(id) {
     window.location.href = `prompt.html?id=${id}`;
 };
 
-// BLOGS LISTING & RENDER (NEW ADDED BLOGS SHOW AT TOP)
+// BLOGS LISTING & RENDER
 const dbBlogsRef = ref(db, 'blogs');
 onValue(dbBlogsRef, (snapshot) => {
     let tempBlogs = [];
@@ -577,7 +587,6 @@ onValue(dbBlogsRef, (snapshot) => {
         }
     }
 
-    // Sort Blogs by Date / Timestamp (Latest First)
     tempBlogs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
     window.appState.blogsList = tempBlogs;
@@ -601,7 +610,7 @@ function renderBlogs() {
         const dateStr = new Date(blog.createdAt).toLocaleDateString();
 
         card.innerHTML = `
-            <img src="${finalImg}" alt="${blog.title}" class="w-full h-48 object-cover">
+            <img src="${finalImg}" alt="${blog.title}" loading="lazy" class="w-full h-48 object-cover">
             <div class="p-5 flex-grow flex flex-col justify-between space-y-3">
                 <div class="space-y-2">
                     <span class="text-[10px] bg-brand-500/10 text-brand-500 font-bold px-2 py-0.5 rounded-full uppercase">${blog.category || 'AI Guide'}</span>
@@ -624,5 +633,6 @@ window.openBlogDetail = function(id) {
 
 window.filterCategory = function(cat) {
     window.appState.currentFilter = cat;
+    window.appState.displayedPromptsCount = 30; // Category switch par reset to 30
     renderPrompts();
 };
