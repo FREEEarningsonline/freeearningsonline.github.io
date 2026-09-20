@@ -162,6 +162,19 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
+
+        // IMAGE PATH RESOLVER FIX
+        function resolveMediaSrc(mediaVal) {
+            if (!mediaVal) {
+                return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"; 
+            }
+            if (typeof mediaVal === 'string' && (mediaVal.startsWith("http://") || mediaVal.startsWith("https://") || mediaVal.startsWith("data:"))) {
+                return mediaVal;
+            }
+            return GITHUB_BASE_URL + mediaVal;
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyCl5kGKi_9sbeHdlEZyqSuThQTA53bH3Po",
             authDomain: "aiprom-98a50.firebaseapp.com",
@@ -172,15 +185,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // ATTRACTIVE VIEW COUNT FORMATTER (1K, 10K, 1M)
         function formatViews(num) {
             const val = parseInt(num) || 0;
-            if (val >= 1000000) {
-                return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-            }
-            if (val >= 1000) {
-                return (val / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-            }
+            if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            if (val >= 1000) return (val / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
             return val.toString();
         }
 
@@ -207,39 +215,39 @@
                     return;
                 }
 
-                // Update Page Title and Metadata for SEO
-                document.title = `${p.title} - AI Prompt | PromptKaro`;
-                document.getElementById('metaDesc').setAttribute('content', p.description || p.title);
-                document.getElementById('canonicalUrl').setAttribute('href', window.location.href);
-
                 // Update Page Content
+                document.title = `${p.title} - AI Prompt | PromptKaro`;
                 document.getElementById('pTitle').innerText = p.title;
                 document.getElementById('pTag').innerText = p.tags || 'AI Prompt';
                 document.getElementById('breadcrumbCategory').innerText = p.tags || 'General';
                 document.getElementById('breadcrumbTitle').innerText = p.title;
                 document.getElementById('pText').innerText = p.description || p.promptText || '';
 
-                // Increment View Count in Firebase & Display Formatted Views
                 const currentViews = (p.views || 0) + 1;
                 document.getElementById('pViews').innerText = formatViews(currentViews);
 
                 runTransaction(ref(db, `prompts/${promptId}/views`), (curr) => (curr || 0) + 1);
 
-                // Update Image / Video Media
+                // RESOLVE IMAGE URL CORRECTION
                 const mediaContainer = document.getElementById('mediaContainer');
                 const pMediaImg = document.getElementById('pMediaImg');
                 const isVideo = p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i));
 
+                const finalMediaUrl = resolveMediaSrc(p.imageURL);
+
                 if (isVideo) {
                     pMediaImg.classList.add('hidden');
                     const videoEl = document.createElement('video');
-                    videoEl.src = p.imageURL;
+                    videoEl.src = finalMediaUrl;
                     videoEl.className = "w-full h-full object-cover rounded-2xl";
                     videoEl.controls = true;
                     videoEl.autoplay = false;
                     mediaContainer.appendChild(videoEl);
                 } else {
-                    pMediaImg.src = p.imageURL || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
+                    pMediaImg.src = finalMediaUrl;
+                    pMediaImg.onerror = function() {
+                        this.src = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe";
+                    };
                 }
 
             } catch (err) {
