@@ -58,20 +58,24 @@
     }
     </script>
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS CDN (NON RENDER-BLOCKING ASYNC) -->
+    <script src="https://cdn.tailwindcss.com" async></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
-                        slate: { 955: '#090d16' }
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.tailwind) {
+                tailwind.config = {
+                    darkMode: 'class',
+                    theme: {
+                        extend: {
+                            colors: {
+                                brand: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
+                                slate: { 955: '#090d16' }
+                            }
+                        }
                     }
                 }
             }
-        }
+        });
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
