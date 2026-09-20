@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getDatabase, ref, set, get, update, push, onValue, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 // ==========================================
 // PART 1: GLOBAL STATE & UI HELPER FUNCTIONS
@@ -85,11 +85,6 @@ function updatePageMetadata(titleSuffix, descriptionSuffix, keywordsSuffix) {
 }
 window.updatePageMetadata = updatePageMetadata;
 
-function clearUrlParameters() {
-    window.history.pushState({}, document.title, window.location.pathname);
-}
-window.clearUrlParameters = clearUrlParameters;
-
 window.appState = {
     currentUser: null,
     currentUserData: null,
@@ -98,12 +93,10 @@ window.appState = {
     blogsList: [], 
     categories: [], 
     blogCategories: [],
-    chatMessages: [],
     ads: { top: '', center: '', multiplex: '', bottom: '' }, 
     currentFilter: 'All',
     currentBlogFilter: 'All',
     isLoginMode: true,
-    currentDetailPrompt: null,
     currentPage: 1,
     currentUserPage: 1, 
     currentBlogPage: 1,
@@ -111,6 +104,7 @@ window.appState = {
     navigationStack: [] 
 };
 
+// Theme Preference Handling
 const systemTheme = localStorage.getItem('theme') || 'dark';
 if (systemTheme === 'dark') {
     document.documentElement.classList.add('dark');
@@ -159,46 +153,11 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    window.history.pushState({ type: 'tab', value: 'home' }, "");
-
     const urlParams = new URLSearchParams(window.location.search);
     const sharedPromptId = urlParams.get('prompt');
-    const sharedBlogId = urlParams.get('blog');
 
     if (sharedPromptId) {
-        let attempts = 0;
-        const checkInterval = setInterval(() => {
-            attempts++;
-            const adminPrompt = window.appState.promptsList.find(p => p.id === sharedPromptId);
-            const userPrompt = window.appState.userPromptsList.find(p => p.id === sharedPromptId);
-
-            if (adminPrompt) {
-                clearInterval(checkInterval);
-                if (typeof window.openPromptDetail === 'function') {
-                    window.openPromptDetail(sharedPromptId);
-                }
-            } else if (userPrompt) {
-                clearInterval(checkInterval);
-                if (typeof window.openUserPromptDetail === 'function') {
-                    window.openUserPromptDetail(sharedPromptId);
-                }
-            }
-            
-            if (attempts > 20) {
-                clearInterval(checkInterval);
-            }
-        }, 500);
-    }
-
-    if (sharedBlogId) {
-        const checkInterval = setInterval(() => {
-            if (window.appState.blogsList && window.appState.blogsList.length > 0) {
-                clearInterval(checkInterval);
-                if (typeof window.openBlogDetail === 'function') {
-                    window.openBlogDetail(sharedBlogId);
-                }
-            }
-        }, 500);
+        window.location.href = `prompt.html?id=${sharedPromptId}`;
     }
 });
 
@@ -209,11 +168,6 @@ function toggleMobileMenu() {
 window.toggleMobileMenu = toggleMobileMenu;
 
 function switchTab(tabId, isBack = false) {
-    if (!isBack && window.appState.viewMode !== tabId) {
-        window.appState.navigationStack.push({ type: 'tab', value: window.appState.viewMode });
-        window.history.pushState({ type: 'tab', value: tabId }, "");
-    }
-
     const sections = [
         'homeExclusiveContent', 
         'categoryFiltersContainer',
@@ -287,19 +241,14 @@ window.handleSearch = function() {
 }
 
 function openModal(id) {
-    window.appState.navigationStack.push({ type: 'modal', value: id });
-    window.history.pushState({ type: 'modal', value: id }, "");
     const modalEl = document.getElementById(id);
     if(modalEl) modalEl.classList.remove('hidden');
 }
 window.openModal = openModal;
 
-function closeModal(id, isBack = false) {
+function closeModal(id) {
     const modalEl = document.getElementById(id);
     if(modalEl) modalEl.classList.add('hidden');
-    if (!isBack) {
-        window.appState.navigationStack = window.appState.navigationStack.filter(item => !(item.type === 'modal' && item.value === id));
-    }
 }
 window.closeModal = closeModal;
 
@@ -318,21 +267,6 @@ function closeAuthModal() {
     window.closeModal('authModal');
 }
 window.closeAuthModal = closeAuthModal;
-
-function closePromptDetailModal() {
-    window.closeModal('promptDetailModal');
-    
-    const videoEl = document.getElementById('detailVideoEl');
-    if (videoEl) {
-        videoEl.pause();
-        videoEl.removeAttribute('src'); 
-        videoEl.load();
-    }
-
-    updatePageMetadata(); 
-    clearUrlParameters(); 
-}
-window.closePromptDetailModal = closePromptDetailModal;
 
 function safeCopy(text) {
     if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
@@ -544,7 +478,7 @@ function renderCategoryPills(categories) {
     });
 }
 
-// PROMPTS LISTING & RENDER (100% FREE)
+// PROMPTS LISTING & RENDER (SEO OPTIMIZED DIRECT PAGE REDIRECT)
 const promptsRef = ref(db, 'prompts');
 onValue(promptsRef, (snapshot) => {
     window.appState.promptsList = [];
@@ -589,6 +523,8 @@ function renderPrompts() {
     filtered.forEach(p => {
         const card = document.createElement('article'); 
         card.className = "relative overflow-hidden aspect-[2/3] rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
+        
+        // REDIRECT TO DEDICATED SHOWCASE PAGE FOR SEO INDEXING
         card.onclick = () => window.openPromptDetail(p.id);
 
         const finalUrl = window.resolveImageSrc(p.imageURL);
@@ -606,34 +542,13 @@ function renderPrompts() {
 }
 window.renderPrompts = renderPrompts;
 
-// OPEN DETAIL MODAL (DIRECT COPY WITHOUT LOCKS)
-window.openPromptDetail = async function(id) {
-    const p = window.appState.promptsList.find(item => item.id === id);
-    if (!p) return;
-
-    window.appState.currentDetailPrompt = p;
-    window.updatePageMetadata(p.title, `Free prompt: ${p.title}`);
-    window.openModal('promptDetailModal');
-
-    const detailImgEl = document.getElementById('detailImg');
-    if (detailImgEl) {
-        detailImgEl.src = window.resolveImageSrc(p.imageURL);
-    }
-
-    const detailTitle = document.getElementById('detailTitle');
-    if (detailTitle) detailTitle.innerText = p.title;
-
-    const detailPromptText = document.getElementById('detailPromptText');
-    if (detailPromptText) {
-        detailPromptText.innerText = p.description || p.promptText;
-        detailPromptText.classList.remove('blur-sm', 'select-none');
-    }
+// DEDICATED PAGE REDIRECT FUNCTIONS FOR GOOGLE INDEXING
+window.openPromptDetail = function(id) {
+    window.location.href = `prompt.html?id=${id}`;
 };
 
-window.copyToClipboard = function() {
-    if (!window.appState.currentDetailPrompt) return;
-    const promptEl = document.getElementById('detailPromptText');
-    if(promptEl) window.safeCopy(promptEl.innerText);
+window.openUserPromptDetail = function(id) {
+    window.location.href = `prompt.html?id=${id}`;
 };
 
 window.filterCategory = function(cat) {
