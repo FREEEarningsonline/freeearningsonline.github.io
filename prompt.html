@@ -76,7 +76,9 @@
                 <div class="flex items-center gap-4 text-xs text-slate-500 font-medium">
                     <span><i class="fa-regular fa-user mr-1"></i> Author: Nazim Mustafa</span>
                     <span><i class="fa-regular fa-calendar mr-1"></i> Updated: September 2026</span>
-                    <span><i class="fa-regular fa-eye mr-1"></i> <span id="pViews">0</span> Views</span>
+                    <span class="flex items-center gap-1 text-amber-500 font-bold">
+                        <i class="fa-solid fa-fire text-amber-500"></i> <span id="pViews">0</span> Views
+                    </span>
                 </div>
             </header>
 
@@ -170,6 +172,18 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // ATTRACTIVE VIEW COUNT FORMATTER (1K, 10K, 1M)
+        function formatViews(num) {
+            const val = parseInt(num) || 0;
+            if (val >= 1000000) {
+                return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            }
+            if (val >= 1000) {
+                return (val / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            }
+            return val.toString();
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const promptId = urlParams.get('id');
 
@@ -204,7 +218,12 @@
                 document.getElementById('breadcrumbCategory').innerText = p.tags || 'General';
                 document.getElementById('breadcrumbTitle').innerText = p.title;
                 document.getElementById('pText').innerText = p.description || p.promptText || '';
-                document.getElementById('pViews').innerText = (p.views || 0) + 1;
+
+                // Increment View Count in Firebase & Display Formatted Views
+                const currentViews = (p.views || 0) + 1;
+                document.getElementById('pViews').innerText = formatViews(currentViews);
+
+                runTransaction(ref(db, `prompts/${promptId}/views`), (curr) => (curr || 0) + 1);
 
                 // Update Image / Video Media
                 const mediaContainer = document.getElementById('mediaContainer');
@@ -222,9 +241,6 @@
                 } else {
                     pMediaImg.src = p.imageURL || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
                 }
-
-                // Increment View Count in Firebase
-                runTransaction(ref(db, `prompts/${promptId}/views`), (curr) => (curr || 0) + 1);
 
             } catch (err) {
                 console.error("Error loading prompt:", err);
