@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-adsense-account" content="ca-pub-3071493838743593">
 
-    <!-- FAST ASSETS PRECONNECT FOR SPEED OPTIMIZATION -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://raw.githubusercontent.com">
+    <!-- PRECONNECT FAST ASSETS -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://aiprom-98a50-default-rtdb.firebaseio.com">
 
     <!-- SEO, GEO & AEO METADATA -->
@@ -18,10 +17,10 @@
     <meta name="author" content="Nazim Mustafa">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     
-    <!-- SINGLE CANONICAL URL (PREVENTS DUPLICATE CONFLICTS) -->
+    <!-- SINGLE CANONICAL URL -->
     <link rel="canonical" href="https://freeearningsonline.github.io/">
 
-    <!-- OPEN GRAPH (SOCIAL & GEO AI AGENTS) -->
+    <!-- OPEN GRAPH -->
     <meta property="og:title" content="PromptKaro - Free AI Prompt Sharing Platform">
     <meta property="og:description" content="Copy tested, high-quality AI image and text prompt formulas for Midjourney, ChatGPT, and Flux AI.">
     <meta property="og:image" content="https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png">
@@ -29,13 +28,13 @@
     <meta property="og:url" content="https://freeearningsonline.github.io/">
     <meta property="og:site_name" content="PromptKaro">
 
-    <!-- TWITTER CARD METADATA -->
+    <!-- TWITTER CARD -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="PromptKaro - Free AI Prompts Library">
     <meta name="twitter:description" content="Copy tested, high-quality AI image and text prompt formulas for Midjourney, ChatGPT, and Flux AI.">
     <meta name="twitter:image" content="https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png">
 
-    <!-- JSON-LD SCHEMA FOR GOOGLE & AI SEARCH ENGINES (AEO / GEO) -->
+    <!-- JSON-LD SCHEMA -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -58,31 +57,37 @@
     }
     </script>
 
-    <!-- Tailwind CSS CDN (NON RENDER-BLOCKING ASYNC) -->
-    <script src="https://cdn.tailwindcss.com" async></script>
+    <!-- TAILWIND CSS CDN (NON-BLOCKING) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            if (window.tailwind) {
-                tailwind.config = {
-                    darkMode: 'class',
-                    theme: {
-                        extend: {
-                            colors: {
-                                brand: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
-                                slate: { 955: '#090d16' }
-                            }
-                        }
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
+                        slate: { 955: '#090d16' }
                     }
                 }
             }
-        });
+        }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- FONT AWESOME ASYNC LOAD (EST SAVINGS ON RENDER BLOCKING) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
+    <style>
+        /* BEST PRACTICES & CLS PERFORMANCE FIXES */
+        body { font-display: swap; text-rendering: optimizeLegibility; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-300">
 
     <!-- HEADER / NAVIGATION BAR -->
-    <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 min-h-[64px]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             
             <a href="index.html" class="flex items-center gap-2 shrink-0" aria-label="PromptKaro Homepage">
@@ -127,17 +132,40 @@
     <!-- MAIN BODY CONTENT -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full space-y-6">
 
-        <!-- HERO CONTAINER -->
-        <section id="homeExclusiveContent" class="bg-gradient-to-r from-brand-600 to-indigo-700 text-white p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden">
-            <div class="max-w-2xl space-y-3 relative z-10">
-                <span class="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">100% Free AI Prompt Library</span>
-                <h1 class="text-2xl sm:text-4xl font-black leading-tight">PromptKaro: Free Trending AI Prompts & Formulas</h1>
-                <p class="text-xs sm:text-sm text-blue-100 leading-relaxed">Copy tested, photorealistic prompt text for Midjourney v6, ChatGPT, Flux AI, and Bing Image Creator in 1-click.</p>
-            </div>
-        </section>
+        <!-- HOMEPAGE FULL EXCLUSIVE CONTENT -->
+        <div id="homeExclusiveContent" class="space-y-6">
+            
+            <!-- HERO BANNER -->
+            <section class="bg-gradient-to-r from-brand-600 to-indigo-700 text-white p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden">
+                <div class="max-w-2xl space-y-3 relative z-10">
+                    <span class="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">100% Free AI Prompt Library</span>
+                    <h1 class="text-2xl sm:text-4xl font-black leading-tight">PromptKaro: Educational AI Prompts & Guides</h1>
+                    <p class="text-xs sm:text-sm text-blue-100 leading-relaxed">Learn prompt engineering techniques for Midjourney, ChatGPT, Flux, and Bing Creator with copy-paste formulas and visual showcases.</p>
+                </div>
+            </section>
+
+            <!-- PODCAST & SHOWCASE BANNER SECTION -->
+            <section class="grid md:grid-cols-2 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between text-white relative overflow-hidden min-h-[160px]">
+                    <div class="space-y-2 z-10">
+                        <span class="text-[10px] bg-rose-500 text-white font-black px-2 py-0.5 rounded-full uppercase">Official Podcast</span>
+                        <h2 class="text-base sm:text-lg font-black">Digital Business & AI Podcast with Nazim Mustafa</h2>
+                        <p class="text-xs text-slate-300">Listen to industry experts discussing prompt engineering, e-commerce, and digital branding.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between text-white relative overflow-hidden min-h-[160px]">
+                    <div class="space-y-2 z-10">
+                        <span class="text-[10px] bg-indigo-500 text-white font-black px-2 py-0.5 rounded-full uppercase">Mastery Course</span>
+                        <h2 class="text-base sm:text-lg font-black">Mustafa Digital Academy (MDA)</h2>
+                        <p class="text-xs text-slate-300">Learn advanced AI prompt structuring, Python automation, and web development.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
 
         <!-- CATEGORY PILLS FILTER -->
-        <div id="categoryFiltersContainer" class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div id="categoryFiltersContainer" class="flex gap-2 overflow-x-auto pb-2 scrollbar-none min-h-[42px]">
             <!-- Dynamically Rendered Category Pills -->
         </div>
 
@@ -150,7 +178,7 @@
                 <span id="promptsCount" class="text-xs text-slate-500 font-medium">Loading...</span>
             </div>
 
-            <div id="promptsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+            <div id="promptsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 min-h-[300px]">
                 <!-- Dynamically Rendered Prompts via script.js -->
             </div>
         </section>
