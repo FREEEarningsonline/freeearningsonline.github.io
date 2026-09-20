@@ -9,7 +9,6 @@ import { getDatabase, ref, set, get, update, push, onValue, remove } from "https
 const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
 const IMGBB_API_KEY = "54345d70fbd11c8a3ccd7e180c3281e2";
 
-// Helper function to dynamically parse and normalize categories
 function normalizeCategories(val) {
     if (!val) return [];
     if (Array.isArray(val)) {
@@ -32,7 +31,6 @@ function normalizeCategories(val) {
     return [];
 }
 
-// Smart Media Detection & Local Video Folder Integration
 function resolveMediaSrc(mediaVal) {
     if (!mediaVal) {
         return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"; 
@@ -53,7 +51,6 @@ function resolveMediaSrc(mediaVal) {
 }
 window.resolveImageSrc = resolveMediaSrc;
 
-// Text Highlighter for Advanced Search
 function highlightText(text, search) {
     if (!search || !text) return text;
     const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -104,7 +101,6 @@ window.appState = {
     navigationStack: [] 
 };
 
-// Theme Preference Handling
 const systemTheme = localStorage.getItem('theme') || 'dark';
 if (systemTheme === 'dark') {
     document.documentElement.classList.add('dark');
@@ -155,9 +151,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const sharedPromptId = urlParams.get('prompt');
+    const sharedBlogId = urlParams.get('blog');
 
     if (sharedPromptId) {
         window.location.href = `prompt.html?id=${sharedPromptId}`;
+    }
+
+    if (sharedBlogId) {
+        window.location.href = `blog.html?id=${sharedBlogId}`;
     }
 });
 
@@ -478,16 +479,26 @@ function renderCategoryPills(categories) {
     });
 }
 
-// PROMPTS LISTING & RENDER (SEO OPTIMIZED DIRECT PAGE REDIRECT)
+// PROMPTS LISTING & RENDER (NEW ADDED SHOW AT TOP / LATEST FIRST)
 const promptsRef = ref(db, 'prompts');
 onValue(promptsRef, (snapshot) => {
-    window.appState.promptsList = [];
+    let tempPrompts = [];
     if (snapshot.exists()) {
         const data = snapshot.val();
         for (let key in data) {
-            window.appState.promptsList.push({ id: key, ...data[key] });
+            tempPrompts.push({ id: key, ...data[key] });
         }
     }
+
+    // Sort Prompts by Timestamp or Reverse Array so Latest / New Additions show on Top
+    tempPrompts.sort((a, b) => (b.timestamp || b.createdAt || 0) - (a.timestamp || a.createdAt || 0));
+    
+    // Fallback: If no timestamp exists, reverse array order
+    if (!tempPrompts[0]?.timestamp && !tempPrompts[0]?.createdAt) {
+        tempPrompts.reverse();
+    }
+
+    window.appState.promptsList = tempPrompts;
     renderPrompts();
 });
 
@@ -520,19 +531,24 @@ function renderPrompts() {
 
     if(countText) countText.innerText = `${filtered.length} free prompts`;
 
-    filtered.forEach(p => {
+    filtered.forEach((p, index) => {
         const card = document.createElement('article'); 
         card.className = "relative overflow-hidden aspect-[2/3] rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 transition cursor-pointer group flex flex-col justify-end text-slate-100";
         
-        // REDIRECT TO DEDICATED SHOWCASE PAGE FOR SEO INDEXING
         card.onclick = () => window.openPromptDetail(p.id);
 
         const finalUrl = window.resolveImageSrc(p.imageURL);
         const isVideo = p.mediaType === 'video' || (p.imageURL && p.imageURL.match(/\.(mp4|webm|ogg)$/i));
 
+        // Show "NEW" badge on top 5 latest prompts
+        const isNew = index < 5;
+
         card.innerHTML = `
             ${isVideo ? `<video src="${finalUrl}" class="absolute inset-0 w-full h-full object-cover" muted playsinline loop></video>` : `<img src="${finalUrl}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover">`}
-            <span class="absolute top-2 right-2 bg-emerald-500/90 text-[8px] px-2 py-0.5 rounded-full font-bold text-white z-10">FREE</span>
+            <div class="absolute top-2 right-2 flex gap-1 z-10">
+                ${isNew ? `<span class="bg-amber-500 text-[8px] px-2 py-0.5 rounded-full font-black text-slate-950 uppercase tracking-wide animate-pulse">NEW</span>` : ''}
+                <span class="bg-emerald-500/90 text-[8px] px-2 py-0.5 rounded-full font-bold text-white">FREE</span>
+            </div>
             <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 to-transparent z-10">
                 <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2">${p.title}</h3>
             </div>
@@ -542,13 +558,68 @@ function renderPrompts() {
 }
 window.renderPrompts = renderPrompts;
 
-// DEDICATED PAGE REDIRECT FUNCTIONS FOR GOOGLE INDEXING
 window.openPromptDetail = function(id) {
     window.location.href = `prompt.html?id=${id}`;
 };
 
 window.openUserPromptDetail = function(id) {
     window.location.href = `prompt.html?id=${id}`;
+};
+
+// BLOGS LISTING & RENDER (NEW ADDED BLOGS SHOW AT TOP)
+const dbBlogsRef = ref(db, 'blogs');
+onValue(dbBlogsRef, (snapshot) => {
+    let tempBlogs = [];
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        for (let key in data) {
+            tempBlogs.push({ id: key, ...data[key] });
+        }
+    }
+
+    // Sort Blogs by Date / Timestamp (Latest First)
+    tempBlogs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    window.appState.blogsList = tempBlogs;
+    renderBlogs();
+});
+
+function renderBlogs() {
+    const container = document.getElementById('blogsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let filtered = window.appState.blogsList;
+
+    filtered.forEach(blog => {
+        const card = document.createElement('article');
+        card.className = "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between transition hover:shadow-md cursor-pointer";
+        
+        card.onclick = () => window.openBlogDetail(blog.id);
+
+        const finalImg = window.resolveImageSrc(blog.imageURL);
+        const dateStr = new Date(blog.createdAt).toLocaleDateString();
+
+        card.innerHTML = `
+            <img src="${finalImg}" alt="${blog.title}" class="w-full h-48 object-cover">
+            <div class="p-5 flex-grow flex flex-col justify-between space-y-3">
+                <div class="space-y-2">
+                    <span class="text-[10px] bg-brand-500/10 text-brand-500 font-bold px-2 py-0.5 rounded-full uppercase">${blog.category || 'AI Guide'}</span>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white line-clamp-2">${blog.title}</h3>
+                </div>
+                <div class="flex justify-between items-center text-[10px] text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <span>${dateStr}</span>
+                    <span class="font-bold text-brand-500">Read Article ➔</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+window.renderBlogs = renderBlogs;
+
+window.openBlogDetail = function(id) {
+    window.location.href = `blog.html?id=${id}`;
 };
 
 window.filterCategory = function(cat) {
