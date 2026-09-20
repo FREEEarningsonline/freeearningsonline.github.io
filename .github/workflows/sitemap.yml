@@ -1,9 +1,11 @@
-name: Generate XML Sitemap
+name: Generate Dynamic XML Sitemap
 
 on:
   push:
     branches:
       - main
+  schedule:
+    - cron: '0 0 * * *' # Har raat auto-update hoga
 
 jobs:
   sitemap_job:
@@ -12,24 +14,21 @@ jobs:
     steps:
     - name: Checkout the repo
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0 
 
-    - name: Generate Sitemap
-      uses: cicirello/generate-sitemap@v1
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
       with:
-        base-url-path: https://freeearningsonline.github.io
-        path-to-root: .
-        include-root: true
-        additional-extensions: html
-        drop-html-extension: false
+        node-version: '18'
+
+    - name: Generate Sitemap from Firebase
+      run: node generate-sitemap.js
 
     - name: Commit and push if changed
       run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add sitemap.xml
         if [ -n "$(git status --porcelain sitemap.xml)" ]; then
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
-          git add sitemap.xml
-          git commit -m "Auto-update sitemap.xml"
+          git commit -m "Auto-update dynamic sitemap.xml with Firebase URLs"
           git push
         fi
