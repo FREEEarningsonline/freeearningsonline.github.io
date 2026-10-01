@@ -1,0 +1,22 @@
+[
+  {
+    "id": "gh_001",
+    "title": "Aesthetic Cyberpunk City",
+    "tags": "Midjourney",
+    "imageURL": "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/cyberpunk.jpg",
+    "mediaType": "image",
+    "description": "High quality cyberpunk city neon lights.",
+    "type": "free",
+    "timestamp": 1700000000000
+  },
+  {
+    "id": "gh_002",
+    "title": "SEO Expert ChatGPT Prompt",
+    "tags": "ChatGPT",
+    "imageURL": "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/seo.png",
+    "mediaType": "image",
+    "description": "Act as an SEO expert and write an article.",
+    "type": "free",
+    "timestamp": 1700000005000
+  }
+]
