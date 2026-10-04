@@ -1,27 +1,22 @@
 // ==========================================
-// PART 1: GLOBAL STATE & UI HELPER FUNCTIONS
-// NO FIREBASE IMPORTS NEEDED ANYMORE! 🚀
+// PROMPTKARO - MAIN APP SCRIPT (STATIC CDN ENGINE)
 // ==========================================
 
 const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
 
 function resolveMediaSrc(mediaVal) {
-    if (!mediaVal) {
-        return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"; 
-    }
-    if (typeof mediaVal === 'string' && mediaVal.match(/\.(mp4|webm|ogg)$/i)) {
-        if (mediaVal.startsWith("http://") || mediaVal.startsWith("https://") || mediaVal.startsWith("data:")) return mediaVal;
-        if (mediaVal.startsWith("/videos/")) return mediaVal;
-        return "/videos/" + mediaVal;
-    }
+    if (!mediaVal) return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"; 
     if (typeof mediaVal === 'string' && (mediaVal.startsWith("http://") || mediaVal.startsWith("https://") || mediaVal.startsWith("data:"))) {
+        return mediaVal;
+    }
+    if (typeof mediaVal === 'string' && mediaVal.startsWith("/videos/")) {
         return mediaVal;
     }
     return GITHUB_BASE_URL + mediaVal;
 }
 window.resolveImageSrc = resolveMediaSrc;
 
-function updatePageMetadata(titleSuffix, descriptionSuffix, keywordsSuffix) {
+function updatePageMetadata(titleSuffix, descriptionSuffix) {
     document.title = titleSuffix ? `PromptKaro - ${titleSuffix}` : "PromptKaro - Free AI Prompt Sharing Platform";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', descriptionSuffix || "Explore, copy, and share free trending AI prompts.");
@@ -35,13 +30,13 @@ function updatePageMetadata(titleSuffix, descriptionSuffix, keywordsSuffix) {
 }
 
 window.appState = {
-    localPrompts: window.CDN_PROMPTS || [], // Loaded from data.js
-    githubAutoPrompts: [],                  // Loaded dynamically from GitHub
-    promptsList: [],                        // Merged List
-    blogsList: window.CDN_BLOGS || [],      // Loaded from data.js
-    categories: ["Viral", "ChatGPT", "Midjourney", "Flux", "Runway", "IG Trend", "Auto Gallery"], 
+    localPrompts: [],
+    githubAutoPrompts: [],
+    promptsList: [],
+    blogsList: [],
+    categories: ["Viral", "IG Trend", "Boys", "Girls", "Fruit Couples 🍎🍌", "Marketing Poster", "Couple 👩‍❤️‍👨", "J🥀M", "👑Quote🦋", "Auto Gallery"],
     currentFilter: 'All',
-    displayedPromptsCount: 10, 
+    displayedPromptsCount: 10,
     viewMode: 'home'
 };
 
@@ -68,7 +63,8 @@ window.addEventListener('DOMContentLoaded', () => {
     updateThemeIcons();
     renderCategoryPills(window.appState.categories);
     
-    // FETCH BOTH LOCAL DB AND NEW GITHUB IMAGES
+    // Load Data with cache-busting
+    window.fetchLocalDatabase();
     window.fetchGithubAutoImages();
 
     const dSearch = document.getElementById('desktopSearch');
@@ -89,9 +85,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (sharedPromptId && !window.location.pathname.includes('prompt.html')) window.location.href = `prompt.html?id=${sharedPromptId}`;
     if (sharedBlogId && !window.location.pathname.includes('blog.html')) window.location.href = `blog.html?id=${sharedBlogId}`;
-    
-    // Render Blogs
-    renderBlogs();
 });
 
 function toggleMobileMenu() {
@@ -144,37 +137,16 @@ window.handleSearch = function() {
     }
 }
 
-// Disable Auth/Upload Features (Since Firebase is removed)
 window.openAuthModal = function() {
-    alert("🚀 PromptKaro is now running in Lightning Fast CDN Mode! User accounts and public uploads are disabled to provide 100x faster speeds.");
+    alert("🚀 PromptKaro is currently running in high-speed CDN mode!");
 };
 window.closeAuthModal = function() {
     const modal = document.getElementById('authModal');
     if(modal) modal.classList.add('hidden');
 };
 
-function safeCopy(text) {
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        navigator.clipboard.writeText(text).then(() => alert("Prompt copied to clipboard successfully!")).catch(() => fallbackCopy(text));
-    } else fallbackCopy(text);
-}
-window.safeCopy = safeCopy;
-
-function fallbackCopy(text) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.opacity = "0";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try { document.execCommand('copy') ? alert("Prompt copied to clipboard!") : alert("Unable to copy."); } 
-    catch (err) { alert("Unable to copy."); }
-    document.body.removeChild(textArea);
-}
-
 // ==========================================
-// PART 2: CDN DATA & GITHUB AUTO LOADER
+// DATA FETCHING & RENDERING
 // ==========================================
 
 function renderCategoryPills(categories) {
@@ -196,13 +168,62 @@ function renderCategoryPills(categories) {
     container.appendChild(createBtn('All Prompts', 'All'));
     container.appendChild(createBtn('Video Prompts', 'Video Prompts'));
     container.appendChild(createBtn('Image Prompts', 'Image Prompts'));
-    categories.forEach(cat => container.appendChild(createBtn(cat, cat)));
+    categories.forEach(cat => {
+        if(cat !== 'All' && cat !== 'Video Prompts' && cat !== 'Image Prompts') {
+            container.appendChild(createBtn(cat, cat));
+        }
+    });
 }
+
+// Fetch prompts.json
+window.fetchLocalDatabase = async function() {
+    try {
+        const res = await fetch("prompts.json?t=" + Date.now());
+        if (!res.ok) throw new Error("prompts.json not found");
+        const data = await res.json();
+        
+        // 1. Prompts Load
+        let arr = [];
+        if (data.prompts) {
+            for (let subKey in data.prompts) {
+                arr.push({ id: subKey, ...data.prompts[subKey] });
+            }
+        } else {
+            for (let key in data) {
+                if (data[key].title || data[key].description) {
+                    arr.push({ id: key, ...data[key] });
+                }
+            }
+        }
+        window.appState.localPrompts = arr;
+
+        // 2. Categories Load
+        if (data.categories && Array.isArray(data.categories)) {
+            const uniqueCats = Array.from(new Set([...data.categories, "Auto Gallery"]));
+            window.appState.categories = uniqueCats;
+            renderCategoryPills(window.appState.categories);
+        }
+
+        // 3. Blogs Load
+        if (data.blogs) {
+            let bArr = [];
+            for (let bKey in data.blogs) {
+                bArr.push({ id: bKey, ...data.blogs[bKey] });
+            }
+            window.appState.blogsList = bArr;
+        }
+
+        mergeAndRenderPrompts();
+    } catch (error) {
+        console.warn("Local JSON fetch info:", error);
+        mergeAndRenderPrompts();
+    }
+};
 
 window.fetchGithubAutoImages = async function() {
     try {
         const res = await fetch("https://api.github.com/repos/freeearningsonline/Ai-Prompt-/contents/images");
-        if (!res.ok) { mergeAndRenderPrompts(); return; }
+        if (!res.ok) return;
         const files = await res.json();
         
         let autoPrompts = [];
@@ -220,7 +241,7 @@ window.fetchGithubAutoImages = async function() {
                         imageURL: file.download_url,
                         tags: 'Auto Gallery',
                         mediaType: 'image',
-                        description: "This prompt image was auto-loaded directly from GitHub.",
+                        description: "Create a photorealistic, high quality aesthetic artwork based on this image style. Use 8K resolution, cinematic lighting, and sharp detailed composition.",
                         timestamp: 0 
                     });
                 }
@@ -230,8 +251,7 @@ window.fetchGithubAutoImages = async function() {
         window.appState.githubAutoPrompts = autoPrompts;
         mergeAndRenderPrompts();
     } catch (error) {
-        console.warn("GitHub Auto-loader skipped:", error);
-        mergeAndRenderPrompts();
+        console.warn("GitHub Auto-loader info:", error);
     }
 };
 
@@ -261,7 +281,7 @@ function renderPrompts() {
     else if (window.appState.currentFilter !== 'All') filtered = filtered.filter(p => p.tags === window.appState.currentFilter);
 
     const searchVal = (document.getElementById('desktopSearch')?.value || document.getElementById('mobileSearch')?.value || '').toLowerCase();
-    if (searchVal) filtered = filtered.filter(p => p.title.toLowerCase().includes(searchVal) || (p.description && p.description.toLowerCase().includes(searchVal)));
+    if (searchVal) filtered = filtered.filter(p => (p.title && p.title.toLowerCase().includes(searchVal)) || (p.description && p.description.toLowerCase().includes(searchVal)));
 
     if(countText) countText.innerText = `${filtered.length} free prompts`;
 
@@ -283,7 +303,7 @@ function renderPrompts() {
                 <span class="bg-emerald-500/90 text-[8px] px-2 py-0.5 rounded-full font-bold text-white">FREE</span>
             </div>
             <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10">
-                <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-tight capitalize">${p.title}</h3>
+                <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-tight capitalize">${p.title || 'Untitled Prompt'}</h3>
             </div>
         `;
         grid.appendChild(card);
@@ -315,7 +335,7 @@ function renderBlogs() {
         card.className = "block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between transition hover:shadow-md hover:-translate-y-1 cursor-pointer outline-none focus:ring-2 focus:ring-brand-500";
         
         const finalImg = window.resolveImageSrc(blog.imageURL);
-        const dateStr = new Date(blog.createdAt).toLocaleDateString();
+        const dateStr = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : 'Recent';
 
         card.innerHTML = `
             <img src="${finalImg}" alt="${blog.title}" loading="lazy" class="w-full h-48 object-cover">
@@ -342,7 +362,7 @@ window.filterCategory = function(cat) {
 };
 
 // ==========================================
-// PART 3: ADVANCED DYNAMIC SCHEMA.ORG ENGINE
+// DYNAMIC SCHEMA ENGINE
 // ==========================================
 function updateMetaTag(id, content) {
     const el = document.getElementById(id);
@@ -362,26 +382,6 @@ function injectAdvancedSchema(pageType, data = null, listData = []) {
         const currentUrl = window.location.href;
         const logoUrl = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png";
         
-        if (data) {
-            const safeTitle = data.title ? `${data.title} | PromptKaro` : document.title;
-            const plainDesc = (data.description || data.content || "").replace(/<[^>]*>?/gm, ''); 
-            const safeDesc = plainDesc ? plainDesc.substring(0, 155) + "..." : "Check out this amazing content on PromptKaro.";
-            const rawImg = data.imageURL || data.image || "";
-            const safeImage = rawImg.startsWith('http') ? rawImg : window.resolveImageSrc(rawImg);
-
-            document.title = safeTitle;
-            updateMetaTag('meta-title', safeTitle);
-            updateMetaTag('meta-desc', safeDesc);
-            updateMetaTag('meta-canonical', currentUrl);
-            updateMetaTag('og-title', safeTitle);
-            updateMetaTag('og-desc', safeDesc);
-            updateMetaTag('og-image', safeImage);
-            updateMetaTag('og-url', currentUrl);
-            updateMetaTag('twitter-title', safeTitle);
-            updateMetaTag('twitter-desc', safeDesc);
-            updateMetaTag('twitter-image', safeImage);
-        }
-
         let graph = [];
         graph.push({ "@type": "Organization", "@id": baseUrl + "#organization", "name": "PromptKaro", "url": baseUrl, "logo": { "@type": "ImageObject", "url": logoUrl } });
         graph.push({ "@type": "WebSite", "@id": baseUrl + "#website", "url": baseUrl, "name": "PromptKaro", "publisher": { "@id": baseUrl + "#organization" }, "potentialAction": { "@type": "SearchAction", "target": baseUrl + "?search={search_term_string}", "query-input": "required name=search_term_string" } });
@@ -390,36 +390,9 @@ function injectAdvancedSchema(pageType, data = null, listData = []) {
             graph.push({ "@type": "CollectionPage", "@id": currentUrl + "#webpage", "url": currentUrl, "name": "PromptKaro", "isPartOf": { "@id": baseUrl + "#website" } });
             if (listData && listData.length > 0) graph.push({ "@type": "ItemList", "@id": currentUrl + "#itemlist", "itemListElement": listData.map((item, idx) => ({ "@type": "ListItem", "position": idx + 1, "url": baseUrl + "prompt.html?id=" + item.id, "name": item.title })) });
             graph.push({ "@type": "PodcastSeries", "@id": baseUrl + "#podcast", "name": "Digital Business & AI Podcast", "url": baseUrl, "provider": { "@id": baseUrl + "#organization" } });
-        } else if (pageType === 'prompt' && data) {
-            graph.push({ "@type": "WebPage", "@id": currentUrl + "#webpage", "url": currentUrl, "name": data.title, "isPartOf": { "@id": baseUrl + "#website" } });
-            graph.push({ "@type": "BreadcrumbList", "@id": currentUrl + "#breadcrumb", "itemListElement": [{ "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl }, { "@type": "ListItem", "position": 2, "name": data.category || data.tags || "Prompts", "item": baseUrl }, { "@type": "ListItem", "position": 3, "name": data.title }] });
-            let mainEntity = { "@type": "CreativeWork", "@id": currentUrl + "#mainentity", "name": data.title, "description": data.description ? data.description.replace(/<[^>]*>?/gm, '') : undefined, "url": currentUrl, "author": { "@id": baseUrl + "#organization" }, "mainEntityOfPage": { "@id": currentUrl + "#webpage" } };
-            graph.push(mainEntity);
         }
 
         const schemaScript = document.getElementById('dynamic-schema');
         if (schemaScript) schemaScript.textContent = JSON.stringify(cleanSchemaObj({ "@context": "https://schema.org", "@graph": graph }));
     } catch (e) {}
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-    const isPromptPage = window.location.pathname.includes('prompt.html');
-    const isBlogPage = window.location.pathname.includes('blog.html');
-    const targetId = new URLSearchParams(window.location.search).get('id');
-
-    if (isPromptPage && targetId) {
-        // Find in local merged list
-        const found = window.appState.promptsList.find(p => p.id === targetId);
-        if (found) injectAdvancedSchema('prompt', found);
-        else {
-            // Wait for GitHub auto-loader to finish if not found immediately
-            setTimeout(() => {
-                const retry = window.appState.promptsList.find(p => p.id === targetId);
-                if (retry) injectAdvancedSchema('prompt', retry);
-            }, 1500);
-        }
-    } else if (isBlogPage && targetId) {
-        const foundBlog = window.appState.blogsList.find(b => b.id === targetId);
-        if (foundBlog) injectAdvancedSchema('blog', foundBlog);
-    }
-});
