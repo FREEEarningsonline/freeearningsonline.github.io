@@ -167,7 +167,7 @@
         <p>© 2026 PromptKaro. All rights reserved.</p>
     </footer>
 
-    <!-- MULTI-SOURCE LOADER SCRIPT -->
+    <!-- SCRIPT -->
     <script type="module">
         const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
 
@@ -200,22 +200,22 @@
 
             let p = null;
 
-            // SOURCE 1: Try to fetch from local prompts.json (FASTEST)
+            // 1. Try to fetch from local prompts.json (with cache buster)
             try {
-                const res = await fetch("prompts.json");
+                const res = await fetch("prompts.json?t=" + Date.now());
                 if (res.ok) {
                     const data = await res.json();
                     if (data.prompts && data.prompts[promptId]) {
-                        p = data.prompts[promptId];
+                        p = { id: promptId, ...data.prompts[promptId] };
                     } else if (data[promptId]) {
-                        p = data[promptId];
+                        p = { id: promptId, ...data[promptId] };
                     }
                 }
             } catch (err) {
-                console.warn("prompts.json could not be loaded directly, trying other sources...");
+                console.warn("prompts.json load attempt:", err);
             }
 
-            // SOURCE 2: If it's an auto-loaded image from GitHub API
+            // 2. Try GitHub Auto images
             if (!p && promptId.startsWith('auto_')) {
                 try {
                     const res = await fetch("https://api.github.com/repos/freeearningsonline/Ai-Prompt-/contents/images");
@@ -234,61 +234,43 @@
                         }
                     }
                 } catch (e) {
-                    console.warn("GitHub auto fetch failed", e);
+                    console.warn("GitHub fetch:", e);
                 }
             }
 
-            // SOURCE 3: Backup check from Firebase REST (No heavy SDK needed)
-            if (!p) {
-                try {
-                    const fbRes = await fetch(`https://aiprom-98a50-default-rtdb.firebaseio.com/prompts/${promptId}.json`);
-                    if (fbRes.ok) p = await fbRes.json();
-                    
-                    if (!p) {
-                        const fbUserRes = await fetch(`https://aiprom-98a50-default-rtdb.firebaseio.com/userPrompts/${promptId}.json`);
-                        if (fbUserRes.ok) p = await fbUserRes.json();
-                    }
-                } catch (e) {
-                    console.warn("Firebase REST fetch failed", e);
-                }
-            }
-
-            // If still not found
+            // If not found
             if (!p) {
                 document.getElementById('pTitle').innerText = "Prompt Not Found";
                 document.getElementById('pText').innerText = "The requested prompt could not be found or has been removed.";
                 return;
             }
 
-            // RENDER DATA
+            // Populate UI Elements
             const promptText = p.description || p.promptText || p.title || "";
             const finalMediaUrl = resolveMediaSrc(p.imageURL);
             const fullTitle = `${p.title} - Free AI Prompt | PromptKaro`;
 
-            // DYNAMIC SEO & SOCIAL TAGS
+            // Document Title & Metas
             document.title = fullTitle;
-            document.getElementById('metaDesc').setAttribute('content', `${p.title}: ${promptText.substring(0, 150)}...`);
-            document.getElementById('metaKeywords').setAttribute('content', `${p.tags || 'AI Prompt'}, ${p.title}, PromptKaro`);
-            document.getElementById('canonicalUrl').setAttribute('href', window.location.href);
-
-            document.getElementById('ogTitle').setAttribute('content', fullTitle);
-            document.getElementById('ogDesc').setAttribute('content', promptText.substring(0, 150));
-            document.getElementById('ogImg').setAttribute('content', finalMediaUrl);
-
-            document.getElementById('twitterTitle').setAttribute('content', fullTitle);
-            document.getElementById('twitterDesc').setAttribute('content', promptText.substring(0, 150));
-            document.getElementById('twitterImg').setAttribute('content', finalMediaUrl);
-
-            // UPDATE UI ELEMENTS
-            document.getElementById('pTitle').innerText = p.title;
+            document.getElementById('pTitle').innerText = p.title || "Untitled Prompt";
+            document.getElementById('pText').innerText = promptText;
             document.getElementById('pTag').innerText = p.tags || 'AI Prompt';
             document.getElementById('breadcrumbCategory').innerText = p.tags || 'General';
             document.getElementById('pCategoryText').innerText = p.tags || 'AI Prompts';
-            document.getElementById('breadcrumbTitle').innerText = p.title;
-            document.getElementById('pText').innerText = promptText;
+            document.getElementById('breadcrumbTitle').innerText = p.title || "Details";
             document.getElementById('pViews').innerText = formatViews(p.views || 1050);
 
-            // DYNAMIC STRUCTURED DATA
+            // SEO & Social Tags
+            document.getElementById('metaDesc')?.setAttribute('content', `${p.title}: ${promptText.substring(0, 150)}...`);
+            document.getElementById('canonicalUrl')?.setAttribute('href', window.location.href);
+            document.getElementById('ogTitle')?.setAttribute('content', fullTitle);
+            document.getElementById('ogDesc')?.setAttribute('content', promptText.substring(0, 150));
+            document.getElementById('ogImg')?.setAttribute('content', finalMediaUrl);
+            document.getElementById('twitterTitle')?.setAttribute('content', fullTitle);
+            document.getElementById('twitterDesc')?.setAttribute('content', promptText.substring(0, 150));
+            document.getElementById('twitterImg')?.setAttribute('content', finalMediaUrl);
+
+            // Dynamic Schema
             const schemaObj = {
               "@context": "https://schema.org",
               "@graph": [
@@ -317,9 +299,10 @@
                 }
               ]
             };
-            document.getElementById('jsonLdSchema').textContent = JSON.stringify(schemaObj);
+            const schemaEl = document.getElementById('jsonLdSchema');
+            if (schemaEl) schemaEl.textContent = JSON.stringify(schemaObj);
 
-            // MEDIA RENDERING (IMAGE OR VIDEO)
+            // Media Rendering (Image / Video)
             const mediaContainer = document.getElementById('mediaContainer');
             const pMediaImg = document.getElementById('pMediaImg');
             const isVideo = p.mediaType === 'video' || (typeof p.imageURL === 'string' && p.imageURL.match(/\.(mp4|webm|ogg)$/i));
