@@ -1,5 +1,5 @@
 // ==========================================
-// PROMPTKARO - MAIN APP SCRIPT (STATIC CDN ENGINE)
+// PROMPTKARO - MAIN APP SCRIPT (MULTI-FALLBACK ENGINE)
 // ==========================================
 
 const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
@@ -63,7 +63,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateThemeIcons();
     renderCategoryPills(window.appState.categories);
     
-    // Load Data with cache-busting
+    // Auto load with multi-source fallback
     window.fetchLocalDatabase();
     window.fetchGithubAutoImages();
 
@@ -138,16 +138,12 @@ window.handleSearch = function() {
 }
 
 window.openAuthModal = function() {
-    alert("🚀 PromptKaro is currently running in high-speed CDN mode!");
+    alert("🚀 PromptKaro is running in high-speed CDN mode!");
 };
 window.closeAuthModal = function() {
     const modal = document.getElementById('authModal');
     if(modal) modal.classList.add('hidden');
 };
-
-// ==========================================
-// DATA FETCHING & RENDERING
-// ==========================================
 
 function renderCategoryPills(categories) {
     const container = document.getElementById('categoryFiltersContainer');
@@ -175,49 +171,67 @@ function renderCategoryPills(categories) {
     });
 }
 
-// Fetch prompts.json
+// 3-LAYER MULTI-SOURCE FETCH FOR MAXIMUM RELIABILITY
 window.fetchLocalDatabase = async function() {
-    try {
-        const res = await fetch("prompts.json?t=" + Date.now());
-        if (!res.ok) throw new Error("prompts.json not found");
-        const data = await res.json();
-        
-        // 1. Prompts Load
-        let arr = [];
-        if (data.prompts) {
-            for (let subKey in data.prompts) {
-                arr.push({ id: subKey, ...data.prompts[subKey] });
-            }
-        } else {
-            for (let key in data) {
-                if (data[key].title || data[key].description) {
-                    arr.push({ id: key, ...data[key] });
+    let data = null;
+    const sources = [
+        "prompts.json?t=" + Date.now(),
+        "./prompts.json?t=" + Date.now(),
+        "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/prompts.json?t=" + Date.now(),
+        "https://aiprom-98a50-default-rtdb.firebaseio.com/.json"
+    ];
+
+    for (let url of sources) {
+        try {
+            const res = await fetch(url);
+            if (res.ok) {
+                data = await res.json();
+                if (data && (data.prompts || data.blogs || Array.isArray(data))) {
+                    break;
                 }
             }
-        }
-        window.appState.localPrompts = arr;
-
-        // 2. Categories Load
-        if (data.categories && Array.isArray(data.categories)) {
-            const uniqueCats = Array.from(new Set([...data.categories, "Auto Gallery"]));
-            window.appState.categories = uniqueCats;
-            renderCategoryPills(window.appState.categories);
-        }
-
-        // 3. Blogs Load
-        if (data.blogs) {
-            let bArr = [];
-            for (let bKey in data.blogs) {
-                bArr.push({ id: bKey, ...data.blogs[bKey] });
-            }
-            window.appState.blogsList = bArr;
-        }
-
-        mergeAndRenderPrompts();
-    } catch (error) {
-        console.warn("Local JSON fetch info:", error);
-        mergeAndRenderPrompts();
+        } catch (e) {}
     }
+
+    if (!data) {
+        mergeAndRenderPrompts();
+        return;
+    }
+
+    // 1. Process Prompts
+    let arr = [];
+    if (data.prompts) {
+        for (let subKey in data.prompts) {
+            arr.push({ id: subKey, ...data.prompts[subKey] });
+        }
+    } else if (Array.isArray(data)) {
+        arr = data;
+    } else {
+        for (let key in data) {
+            if (data[key].title || data[key].description) {
+                arr.push({ id: key, ...data[key] });
+            }
+        }
+    }
+    window.appState.localPrompts = arr;
+
+    // 2. Process Categories
+    if (data.categories && Array.isArray(data.categories)) {
+        const uniqueCats = Array.from(new Set([...data.categories, "Auto Gallery"]));
+        window.appState.categories = uniqueCats;
+        renderCategoryPills(window.appState.categories);
+    }
+
+    // 3. Process Blogs
+    if (data.blogs) {
+        let bArr = [];
+        for (let bKey in data.blogs) {
+            bArr.push({ id: bKey, ...data.blogs[bKey] });
+        }
+        window.appState.blogsList = bArr;
+    }
+
+    mergeAndRenderPrompts();
 };
 
 window.fetchGithubAutoImages = async function() {
@@ -250,9 +264,7 @@ window.fetchGithubAutoImages = async function() {
         
         window.appState.githubAutoPrompts = autoPrompts;
         mergeAndRenderPrompts();
-    } catch (error) {
-        console.warn("GitHub Auto-loader info:", error);
-    }
+    } catch (error) {}
 };
 
 function mergeAndRenderPrompts() {
@@ -361,13 +373,6 @@ window.filterCategory = function(cat) {
     renderPrompts();
 };
 
-// ==========================================
-// DYNAMIC SCHEMA ENGINE
-// ==========================================
-function updateMetaTag(id, content) {
-    const el = document.getElementById(id);
-    if (el && content) el.setAttribute(el.hasAttribute('content') ? 'content' : 'href', content);
-}
 function cleanSchemaObj(obj) {
     for (let propName in obj) {
         if (obj[propName] === null || obj[propName] === undefined || obj[propName] === "") delete obj[propName];
