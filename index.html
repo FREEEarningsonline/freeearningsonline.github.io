@@ -1,41 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-adsense-account" content="ca-pub-3071493838743593">
-
+    
     <!-- PRECONNECT FOR MAXIMUM SPEED -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
     <link rel="preconnect" href="https://aiprom-98a50-default-rtdb.firebaseio.com" crossorigin>
 
-    <!-- METADATA FOR SEO, GEO & AEO -->
-    <title>PromptKaro - Free AI Prompt Sharing Platform & Library</title>
-    <meta name="description" content="Explore, copy, and share 100% free AI prompts for Midjourney v6, ChatGPT (GPT-4o), Flux AI, and Bing Creator. Learn prompt engineering with our guides.">
+    <!-- METADATA FOR SEO, GEO & AEO (IDs added for dynamic JavaScript SEO) -->
+    <title id="meta-title">PromptKaro - Free AI Prompt Sharing Platform & Library</title>
+    <meta id="meta-desc" name="description" content="Explore, copy, and share 100% free AI prompts for Midjourney v6, ChatGPT (GPT-4o), Flux AI, and Bing Creator. Learn prompt engineering with our guides.">
     <meta name="keywords" content="AI Prompts, Midjourney Prompts, ChatGPT Prompts, Flux AI, Free AI Prompts, Prompt Engineering Guide, PromptKaro">
     <meta name="author" content="Nazim Mustafa">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-    
-    <!-- STRICT SINGLE CANONICAL URL -->
-    <link rel="canonical" href="https://freeearningsonline.github.io/">
 
-    <!-- OPEN GRAPH -->
-    <meta property="og:title" content="PromptKaro - Free AI Prompt Sharing Platform">
-    <meta property="og:description" content="Copy tested, high-quality AI image and text prompt formulas for Midjourney, ChatGPT, and Flux AI.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png">
+    <!-- STRICT SINGLE CANONICAL URL (ID added) -->
+    <link id="meta-canonical" rel="canonical" href="https://freeearningsonline.github.io/">
+
+    <!-- OPEN GRAPH (IDs added) -->
+    <meta id="og-title" property="og:title" content="PromptKaro - Free AI Prompt Sharing Platform">
+    <meta id="og-desc" property="og:description" content="Copy tested, high-quality AI image and text prompt formulas for Midjourney, ChatGPT, and Flux AI.">
+    <meta id="og-image" property="og:image" content="https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://freeearningsonline.github.io/">
+    <meta id="og-url" property="og:url" content="https://freeearningsonline.github.io/">
     <meta property="og:site_name" content="PromptKaro">
 
-    <!-- TWITTER CARD -->
+    <!-- TWITTER CARD (IDs added) -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="PromptKaro - Free AI Prompts Library">
-    <meta name="twitter:description" content="Copy tested, high-quality AI image and text prompt formulas for Midjourney, ChatGPT, and Flux AI.">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png">
+    <meta id="twitter-title" name="twitter:title" content="PromptKaro - Free AI Prompts Library">
+    <meta id="twitter-desc" name="twitter:description" content="Copy tested, high-quality AI image and text prompt formulas for Midjourney, ChatGPT, and Flux AI.">
+    <meta id="twitter-image" name="twitter:image" content="https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png">
 
-    <!-- JSON-LD STRUCTURED DATA -->
+    <!-- JSON-LD STRUCTURED DATA (Existing Homepage Setup) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -57,6 +56,9 @@
       }
     }
     </script>
+
+    <!-- DYNAMIC SCHEMA CONTAINER FOR INDIVIDUAL PAGES -->
+    <script id="dynamic-schema" type="application/ld+json"></script>
 
     <!-- NON-BLOCKING TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -84,7 +86,7 @@
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
     <!-- HEADER / NAVIGATION BAR -->
     <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 min-h-[64px]">
@@ -181,6 +183,13 @@
             <div id="promptsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 min-h-[300px]">
                 <!-- Dynamically Rendered Prompts via script.js -->
             </div>
+
+            <!-- LOAD MORE BUTTON (Added here based on logic in script.js) -->
+            <div id="loadMoreContainer" class="hidden flex justify-center mt-8 mb-4">
+                <button type="button" onclick="loadMorePrompts()" class="bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold py-2.5 px-6 rounded-full transition shadow-md flex items-center gap-2">
+                    Load More <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+                </button>
+            </div>
             
             <!-- SEO ARTICLE / HOMEPAGE GUIDE SECTION -->
             <article class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm mt-10 space-y-5">
@@ -272,5 +281,6 @@
 
     <!-- MAIN APP SCRIPT MODULE -->
     <script type="module" src="script.js"></script>
+
 </body>
 </html>
