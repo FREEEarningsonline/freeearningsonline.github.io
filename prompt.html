@@ -167,7 +167,7 @@
         <p>© 2026 PromptKaro. All rights reserved.</p>
     </footer>
 
-    <!-- SCRIPT -->
+    <!-- SCRIPT WITH 3-WAY MULTI-SOURCE LOADER -->
     <script type="module">
         const GITHUB_BASE_URL = "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/";
 
@@ -200,22 +200,37 @@
 
             let p = null;
 
-            // 1. Try to fetch from local prompts.json (with cache buster)
-            try {
-                const res = await fetch("prompts.json?t=" + Date.now());
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.prompts && data.prompts[promptId]) {
-                        p = { id: promptId, ...data.prompts[promptId] };
-                    } else if (data[promptId]) {
-                        p = { id: promptId, ...data[promptId] };
+            // Multi-Source Try
+            const sources = [
+                "prompts.json?t=" + Date.now(),
+                "./prompts.json?t=" + Date.now(),
+                "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/prompts.json?t=" + Date.now(),
+                `https://aiprom-98a50-default-rtdb.firebaseio.com/prompts/${promptId}.json`,
+                `https://aiprom-98a50-default-rtdb.firebaseio.com/userPrompts/${promptId}.json`
+            ];
+
+            for (let url of sources) {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        const resData = await res.json();
+                        if (resData) {
+                            if (resData.prompts && resData.prompts[promptId]) {
+                                p = { id: promptId, ...resData.prompts[promptId] };
+                                break;
+                            } else if (resData[promptId]) {
+                                p = { id: promptId, ...resData[promptId] };
+                                break;
+                            } else if (resData.title || resData.description) {
+                                p = { id: promptId, ...resData };
+                                break;
+                            }
+                        }
                     }
-                }
-            } catch (err) {
-                console.warn("prompts.json load attempt:", err);
+                } catch (e) {}
             }
 
-            // 2. Try GitHub Auto images
+            // Fallback for GitHub Auto images
             if (!p && promptId.startsWith('auto_')) {
                 try {
                     const res = await fetch("https://api.github.com/repos/freeearningsonline/Ai-Prompt-/contents/images");
@@ -233,12 +248,9 @@
                             };
                         }
                     }
-                } catch (e) {
-                    console.warn("GitHub fetch:", e);
-                }
+                } catch (e) {}
             }
 
-            // If not found
             if (!p) {
                 document.getElementById('pTitle').innerText = "Prompt Not Found";
                 document.getElementById('pText').innerText = "The requested prompt could not be found or has been removed.";
