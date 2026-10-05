@@ -1,0 +1,32 @@
+{
+  "tools": [
+    {
+      "id": 1,
+      "title": "AI Article Writer",
+      "description": "Smart text options and auto-generating features for professional writers.",
+      "image": "images/article-writer.png",
+      "link": "#"
+    },
+    {
+      "id": 2,
+      "title": "Smart Image Generator",
+      "description": "Smart image that generates professional product designs and high-end artwork.",
+      "image": "images/image-generator.png",
+      "link": "#"
+    },
+    {
+      "id": 3,
+      "title": "SEO Optimizer",
+      "description": "Optimize for content caching, keyword tracking, and smart analytics easily.",
+      "image": "images/seo-optimizer.png",
+      "link": "#"
+    },
+    {
+      "id": 4,
+      "title": "Smart Table",
+      "description": "Organize data and structured information seamlessly with automated tools.",
+      "image": "images/FB_IMG_1785347097231.jpg",
+      "link": "promp.html"
+    }
+  ]
+}
