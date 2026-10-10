@@ -15,6 +15,9 @@ Allow: /contact-us.html
 Allow: /prompt.html
 Allow: /sitemap.xml
 Allow: /privacy-policy.html
+Allow: /prompts.json
+Allow: /blog
+Allow: /images
 # Crawl delay (optional - mostly for bots like Bing)
 Crawl-delay: 5
 
