@@ -13,7 +13,7 @@ Allow: /index.html
 Allow: /about-us.html
 Allow: /contact-us.html
 Allow: /privacy-policy.html
-
+Allow: /sitemap.xml
 # Crawl delay (optional - mostly for bots like Bing)
 Crawl-delay: 5
 
