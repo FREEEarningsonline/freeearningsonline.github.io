@@ -12,8 +12,9 @@ Disallow: /private/
 Allow: /index.html
 Allow: /about-us.html
 Allow: /contact-us.html
-Allow: /privacy-policy.html
+Allow: /prompt.html
 Allow: /sitemap.xml
+Allow: /privacy-policy.html
 # Crawl delay (optional - mostly for bots like Bing)
 Crawl-delay: 5
 
