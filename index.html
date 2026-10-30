@@ -37,7 +37,15 @@
       "description": "Free AI prompt sharing platform and prompt engineering guide for ChatGPT, Midjourney, and Flux AI.",
       "publisher": {
         "@type": "Organization",
-        "name": "PromptKaro"
+        "name": "PromptKaro",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://raw.githubusercontent.com/freeearningsonline/Ai-Prompt-/main/images/logo.png"
+        }
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Nazim Mustafa"
       }
     }
     </script>
@@ -71,7 +79,7 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
-    <!-- HEADER & NAVIGATION (<header> & <nav>) -->
+    <!-- HEADER & NAVIGATION -->
     <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 min-h-[64px]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             
@@ -83,7 +91,7 @@
             <!-- DESKTOP SEARCH BAR -->
             <div class="hidden md:flex flex-1 max-w-md relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" aria-hidden="true"></i>
-                <input type="text" id="desktopSearch" placeholder="Search prompts..." aria-label="Search prompts" class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-9 pr-4 py-2.5 rounded-full border border-transparent focus:border-brand-500 focus:outline-none transition">
+                <input type="text" id="desktopSearch" placeholder="Search prompts (e.g., 3D Name, Portrait, Viral)..." aria-label="Search prompts" class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-9 pr-4 py-2.5 rounded-full border border-transparent focus:border-brand-500 focus:outline-none transition">
             </div>
 
             <!-- RIGHT HEADER CONTROLS (Wrapped in <nav>) -->
@@ -96,7 +104,11 @@
                 </button>
 
                 <div class="auth-logged-out flex items-center">
-                    <button type="button" onclick="openAuthModal('login')" class="text-xs font-bold bg-brand-500 text-white px-4 py-2 rounded-full hover:bg-brand-600 transition shadow-sm">Get Started</button>
+                    <button type="button" onclick="openAuthModal('login')" class="text-xs font-bold bg-brand-500 text-white px-4 py-2 rounded-full hover:bg-brand-600 transition shadow-sm">Login</button>
+                </div>
+                <div class="auth-logged-in hidden flex items-center gap-2">
+                    <button type="button" onclick="switchTab('userUpload')" class="text-xs font-bold bg-emerald-500 text-white px-3 py-1.5 rounded-full"><i class="fa-solid fa-plus mr-1"></i> Upload</button>
+                    <button type="button" onclick="logout()" class="text-xs font-bold text-rose-500 px-2 py-1"><i class="fa-solid fa-sign-out"></i></button>
                 </div>
             </nav>
         </div>
@@ -113,52 +125,52 @@
     <!-- MAIN CONTENT AREA -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full space-y-8 lg:space-y-10">
 
-        <!-- 1. HERO SECTION WITH LAPTOP IMAGE -->
+        <!-- HERO SECTION (Aapka Original Text + Naya Layout Image) -->
         <section class="bg-gradient-to-r from-brand-600 to-indigo-700 text-white p-6 sm:p-8 md:p-12 rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
             <div class="w-full md:w-1/2 space-y-4 relative z-10 text-center md:text-left">
-                <span class="bg-white/20 text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">100% Free Prompt Library</span>
-                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight">Build Better <br class="hidden md:block"/>AI Experiences</h1>
-                <p class="text-sm sm:text-base text-blue-100 leading-relaxed max-w-lg mx-auto md:mx-0">Modern websites with clean design, better performance, and great user experience using powerful AI Prompts.</p>
+                <span class="bg-white/20 text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">100% Free AI Prompt Library</span>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight">PromptKaro: Educational AI Prompts & Guides</h1>
+                <p class="text-sm sm:text-base text-blue-100 leading-relaxed max-w-lg mx-auto md:mx-0">Copy tested, photorealistic prompt text for Midjourney v6, ChatGPT, Flux AI, and Bing Image Creator in 1-click.</p>
                 <div class="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
-                    <button onclick="document.getElementById('promptsSection').scrollIntoView({behavior: 'smooth'})" class="bg-white text-indigo-700 font-bold px-6 py-3 rounded-full shadow-md text-sm">Get Started</button>
-                    <button onclick="switchTab('blog')" class="bg-indigo-800/50 border border-white/30 font-bold px-6 py-3 rounded-full text-sm">Learn More</button>
+                    <button onclick="document.getElementById('promptsSection').scrollIntoView({behavior: 'smooth'})" class="bg-white text-indigo-700 font-bold px-6 py-3 rounded-full shadow-md text-sm">Explore Prompts</button>
+                    <button onclick="switchTab('blog')" class="bg-indigo-800/50 border border-white/30 font-bold px-6 py-3 rounded-full text-sm hover:bg-indigo-800 transition">Read Guides</button>
                 </div>
             </div>
-            <!-- Laptop Image (Mobile Responsive) -->
+            <!-- Relevant Tech/AI Image (Mobile Responsive) -->
             <div class="w-full md:w-1/2 flex justify-center mt-6 md:mt-0 relative z-10">
-                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80" alt="Web Experience Laptop" loading="lazy" class="w-full max-w-[300px] sm:max-w-sm md:max-w-md rounded-2xl shadow-2xl border-4 border-white/20 transform rotate-1 hover:rotate-0 transition duration-500">
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&q=80" alt="AI Technology" loading="lazy" class="w-full max-w-[300px] sm:max-w-sm md:max-w-md rounded-2xl shadow-2xl border-4 border-white/20 transform rotate-1 hover:rotate-0 transition duration-500 object-cover">
             </div>
         </section>
 
-        <!-- 2. FEATURES SECTION (Responsive Grid) -->
+        <!-- FEATURES SECTION (AdSense Value Addition) -->
         <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl"><i class="fa-solid fa-bolt"></i></div>
-                <h3 class="font-bold text-lg mb-2">Fast Performance</h3>
-                <p class="text-xs text-slate-500">Optimized for speed and better experience.</p>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <h3 class="font-bold text-lg mb-2">Tested Formulas</h3>
+                <p class="text-xs text-slate-500">Every prompt is optimized and manually tested for high-quality generation.</p>
             </div>
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl"><i class="fa-solid fa-shield-halved"></i></div>
-                <h3 class="font-bold text-lg mb-2">Secure & Reliable</h3>
-                <p class="text-xs text-slate-500">Built with modern best practices.</p>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl"><i class="fa-solid fa-unlock-keyhole"></i></div>
+                <h3 class="font-bold text-lg mb-2">100% Free</h3>
+                <p class="text-xs text-slate-500">No paywalls, no hidden fees. Copy and share prompts freely with 1-click.</p>
             </div>
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl"><i class="fa-solid fa-users"></i></div>
-                <h3 class="font-bold text-lg mb-2">Easy to Use</h3>
-                <p class="text-xs text-slate-500">Clean and intuitive design for everyone.</p>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl"><i class="fa-solid fa-robot"></i></div>
+                <h3 class="font-bold text-lg mb-2">Multiple Models</h3>
+                <p class="text-xs text-slate-500">Supports Midjourney v6, ChatGPT-4o, Flux AI, and Bing Creator.</p>
             </div>
         </section>
 
         <!-- TWO COLUMN LAYOUT (Stacks on mobile) -->
         <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
             
-            <!-- LEFT COLUMN (Main Content) -->
+            <!-- LEFT COLUMN (Main Content - PROMPTS SECTION KE SATH KOI CHHER CHHAR NAHI) -->
             <div class="flex-1 w-full space-y-6 lg:space-y-8 overflow-hidden">
                 
                 <!-- CATEGORY PILLS (Untouched Logic) -->
                 <div id="categoryFiltersContainer" class="flex gap-2 overflow-x-auto pb-2 scrollbar-none min-h-[42px]"></div>
 
-                <!-- PROMPTS SECTION (Untouched Logic) -->
+                <!-- PROMPTS SECTION (UNTOUCHED LOGIC) -->
                 <section id="promptsSection" class="space-y-4">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg sm:text-xl font-bold flex items-center gap-2">
@@ -167,7 +179,7 @@
                         <span id="promptsCount" class="text-xs text-slate-500 font-medium bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Loading...</span>
                     </div>
 
-                    <div id="promptsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[300px]">
+                    <div id="promptsGrid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 min-h-[300px]">
                         <!-- Dynamic Prompts Script Output -->
                     </div>
 
@@ -178,125 +190,174 @@
                     </div>
                 </section>
 
-                <!-- 3. ABOUT US CARD WITH BUILDING IMAGE (Responsive) -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm flex flex-col sm:flex-row">
-                    <!-- Skyscraper Building Image -->
+                <!-- BLOGS SECTION (Untouched Logic) -->
+                <section id="blogSection" class="hidden space-y-4">
+                    <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-newspaper text-brand-500" aria-hidden="true"></i> AI Guides & Tutorials
+                    </h2>
+                    <div id="blogsContainer" class="grid md:grid-cols-2 gap-4">
+                        <!-- Dynamic Blogs -->
+                    </div>
+                </section>
+
+                <!-- USER UPLOAD SECTION (Untouched Logic) -->
+                <section id="userUploadSection" class="hidden max-w-xl mx-auto bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+                    <h2 class="text-lg font-bold">Upload Your AI Prompt</h2>
+                    <form id="userUploadForm" class="space-y-3 text-xs">
+                        <div>
+                            <label for="uTitle" class="block font-bold mb-1">Title</label>
+                            <input type="text" id="uTitle" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                        </div>
+                        <div>
+                            <label for="uCategory" class="block font-bold mb-1">Category</label>
+                            <input type="text" id="uCategory" placeholder="e.g. Viral, Midjourney" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                        </div>
+                        <div>
+                            <label for="uDescription" class="block font-bold mb-1">Prompt Text</label>
+                            <textarea id="uDescription" rows="4" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800"></textarea>
+                        </div>
+                        <div>
+                            <label for="uImageFile" class="block font-bold mb-1">Select Image</label>
+                            <input type="file" id="uImageFile" accept="image/*" required class="w-full text-slate-500">
+                            <p id="uImageFileName" class="text-[10px] text-slate-400 mt-1"></p>
+                        </div>
+                        <button type="submit" id="userUploadSubmitBtn" class="w-full bg-brand-500 text-white font-bold py-2.5 rounded-xl">Submit Prompt</button>
+                    </form>
+                </section>
+
+                <!-- ABOUT US CARD (Building Layout, Your Original Context) -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm flex flex-col sm:flex-row mt-6">
+                    <!-- Building Image from Anatomy Layout -->
                     <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=500&q=80" loading="lazy" alt="Corporate Building" class="w-full sm:w-[40%] md:w-[35%] object-cover h-48 sm:h-auto">
                     <div class="p-6 sm:p-8 flex flex-col justify-center w-full">
                         <span class="text-[10px] uppercase font-bold bg-brand-100 text-brand-600 px-2 py-1 w-fit rounded-md tracking-wider mb-2">Our Story</span>
-                        <h3 class="text-2xl font-black mb-3">About Us</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">We create digital solutions that help businesses grow. Our team focuses on clean design, modern technology, and real results to make AI Prompt engineering accessible for everyone.</p>
-                        <button class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold py-2.5 px-6 rounded-full w-fit shadow-md transition">Learn More</button>
+                        <h3 class="text-2xl font-black mb-3">About PromptKaro</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">PromptKaro is dedicated to making AI Prompt Engineering accessible. We curate the highest quality, tested prompt formulas to help you generate photorealistic images and professional text effortlessly.</p>
+                        <a href="about.html" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold py-2.5 px-6 rounded-full w-fit shadow-md transition text-center">Read More</a>
                     </div>
                 </div>
 
             </div> <!-- End Left Column -->
 
-            <!-- RIGHT COLUMN (Aside / Sidebar) -->
+            <!-- RIGHT COLUMN (Sidebar / Aside) -->
             <aside class="w-full lg:w-[320px] shrink-0 space-y-6">
                 
-                <!-- 4. LATEST POSTS WIDGET (WITH THUMBNAIL IMAGES) -->
+                <!-- LATEST POSTS WIDGET (Your Guides Content) -->
                 <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <h3 class="font-bold text-lg mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Latest Posts</h3>
+                    <h3 class="font-bold text-lg mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Latest AI Guides</h3>
                     <ul class="space-y-4">
                         <li class="flex gap-3 items-center">
-                            <!-- Thumbnail 1 -->
-                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=100&q=80" loading="lazy" class="w-14 h-14 rounded-lg object-cover shadow-sm" alt="Web Design">
+                            <img src="https://images.unsplash.com/photo-1684369595856-787118128212?auto=format&fit=crop&w=100&q=80" loading="lazy" class="w-14 h-14 rounded-lg object-cover shadow-sm" alt="Midjourney Guide">
                             <div>
-                                <a href="#" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-brand-500">Web Design Tips</a>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Optimize user UI/UX flow.</p>
+                                <a href="/blog/midjourney-v6-prompt-guide.html" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-brand-500 leading-tight">Midjourney v6 Prompt Guide</a>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Parameters & best practices.</p>
                             </div>
                         </li>
                         <li class="flex gap-3 items-center">
-                            <!-- Thumbnail 2 -->
-                            <img src="https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?auto=format&fit=crop&w=100&q=80" loading="lazy" class="w-14 h-14 rounded-lg object-cover shadow-sm" alt="CSS Guide">
+                            <img src="https://images.unsplash.com/photo-1682687982501-1e5898cb8f4b?auto=format&fit=crop&w=100&q=80" loading="lazy" class="w-14 h-14 rounded-lg object-cover shadow-sm" alt="ChatGPT Guide">
                             <div>
-                                <a href="#" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-brand-500">CSS Grid Guide</a>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Master responsive layouts.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-3 items-center">
-                            <!-- Thumbnail 3 -->
-                            <img src="https://images.unsplash.com/photo-1627398225081-24c89da9c459?auto=format&fit=crop&w=100&q=80" loading="lazy" class="w-14 h-14 rounded-lg object-cover shadow-sm" alt="JavaScript">
-                            <div>
-                                <a href="#" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-brand-500">JavaScript Basics</a>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Learn DOM manipulation.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-3 items-center">
-                            <!-- Thumbnail 4 -->
-                            <img src="https://images.unsplash.com/photo-1432888622747-4eb9a8f2c293?auto=format&fit=crop&w=100&q=80" loading="lazy" class="w-14 h-14 rounded-lg object-cover shadow-sm" alt="SEO">
-                            <div>
-                                <a href="#" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-brand-500">SEO for Developers</a>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Rank higher on Google.</p>
+                                <a href="/blog/chatgpt-blog-writing-prompts.html" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-brand-500 leading-tight">ChatGPT Blog Writing</a>
+                                <p class="text-[11px] text-slate-500 mt-0.5">A simple prompt framework.</p>
                             </div>
                         </li>
                     </ul>
                 </div>
 
-                <!-- PODCAST BANNER -->
+                <!-- PODCAST BANNER (Your Original Content) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between text-white relative shadow-sm">
-                    <span class="text-[10px] bg-rose-500 font-black px-2 py-0.5 rounded-full uppercase w-fit mb-2">Podcast</span>
+                    <span class="text-[10px] bg-rose-500 font-black px-2 py-0.5 rounded-full uppercase w-fit mb-2">Official Podcast</span>
                     <h2 class="text-base font-black leading-tight mb-2">Digital Business & AI with Nazim Mustafa</h2>
-                    <p class="text-xs text-slate-300">Industry experts discuss AI prompt engineering and digital branding.</p>
+                    <p class="text-xs text-slate-300">Listen to industry experts discussing prompt engineering, e-commerce, and digital branding.</p>
                 </div>
+
+                <!-- MASTERY COURSE BANNER (Your Original Content) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between text-white relative shadow-sm mt-4">
+                    <span class="text-[10px] bg-indigo-500 font-black px-2 py-0.5 rounded-full uppercase w-fit mb-2">Mastery Course</span>
+                    <h2 class="text-base font-black leading-tight mb-2">Mustafa Digital Academy (MDA)</h2>
+                    <p class="text-xs text-slate-300">Learn advanced AI prompt structuring, Python automation, and web development.</p>
+                </div>
+
             </aside>
         </div>
 
-        <!-- 5. SEO ARTICLE SECTION (Responsive) -->
+        <!-- SEO ARTICLE SECTION (Aapka original text wapis) -->
         <article class="bg-white dark:bg-slate-900 p-6 sm:p-10 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
             <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-4">AI Prompt Engineering Guide & Best Practices</h2>
+            
             <div class="space-y-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
-                <p>Writing an effective prompt requires clarity and structure. Always start with a core subject, add environmental details, specify lighting conditions, and define the exact style (e.g., cinematic, 8k resolution, raw style). Use specific aspect ratio parameters like <code>--ar 16:9</code>.</p>
-                <p>PromptKaro is a 100% free library offering tested, copy-paste ready prompt formulas for <strong>ChatGPT</strong>, <strong>Midjourney</strong>, <strong>Bing Image Creator</strong>, and <strong>Flux AI</strong>.</p>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">How to Write the Perfect Prompt</h3>
+                <p>Writing an effective prompt requires clarity and structure. Always start with a core subject, add environmental details, specify lighting conditions, and define the exact style (e.g., cinematic, 8k resolution, raw style). Use specific aspect ratio parameters like <code>--ar 16:9</code> for widescreen or <code>--ar 9:16</code> for mobile formats when using tools like Midjourney v6.</p>
+                
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1 mt-4">Why Use PromptKaro?</h3>
+                <p>PromptKaro is a 100% free library offering tested, copy-paste ready prompt formulas for <strong>ChatGPT</strong>, <strong>Midjourney</strong>, <strong>Bing Image Creator</strong>, and <strong>Flux AI</strong>. Whether you need a viral 3D name art prompt, a professional marketing copy template, or hyper-realistic photography setups, our platform has you covered without any paywalls or hidden fees.</p>
             </div>
         </article>
 
-        <!-- 6. CALL TO ACTION SECTION -->
+        <!-- CTA SECTION (Layout by picture, Text by PromptKaro) -->
         <section class="bg-brand-600 text-white rounded-3xl p-8 sm:p-12 text-center shadow-lg relative overflow-hidden">
             <div class="relative z-10 max-w-2xl mx-auto">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-black mb-4">Ready to Build Your Next Project?</h2>
-                <p class="text-sm sm:text-base text-blue-100 mb-8">Join thousands of developers building amazing websites and AI content.</p>
-                <button onclick="openAuthModal('login')" class="bg-white text-brand-600 hover:bg-slate-100 text-sm font-bold py-3 px-8 rounded-full shadow-md">Get Started Now</button>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-black mb-4">Ready to Create Amazing AI Content?</h2>
+                <p class="text-sm sm:text-base text-blue-100 mb-8">Join thousands of creators using PromptKaro to generate stunning images and texts. Share your own prompts with the community.</p>
+                <button onclick="openAuthModal('login')" class="bg-white text-brand-600 hover:bg-slate-100 text-sm font-bold py-3 px-8 rounded-full shadow-md">Join PromptKaro Today</button>
             </div>
         </section>
 
     </main>
 
-    <!-- FOOTER -->
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl max-w-sm w-full border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 id="authTitle" class="font-bold text-sm">Secure Login</h3>
+                <button type="button" onclick="closeAuthModal()" aria-label="Close Auth Modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="authForm" class="space-y-3 text-xs">
+                <input type="email" id="authEmail" placeholder="Email Address" required aria-label="Email Address" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                <input type="password" id="authPassword" placeholder="Password" required aria-label="Password" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                <button type="submit" id="authSubmitBtn" class="w-full bg-brand-500 text-white font-bold py-2.5 rounded-xl">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER (Original PromptKaro Links wapis add kar diye) -->
     <footer class="bg-slate-900 text-white border-t border-slate-800 py-10 mt-10 rounded-t-3xl text-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                 
+                <!-- Brand Info -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-lg mb-3">Brand</h4>
-                    <p class="text-slate-400 text-xs leading-relaxed">Building modern web experiences for everyone. High quality AI Prompts library.</p>
+                    <h4 class="font-bold text-lg mb-3">PromptKaro</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">Your ultimate library for creative AI prompt engineering. 100% free forever.</p>
                     <div class="flex gap-4 text-slate-400 pt-2">
-                        <i class="fa-brands fa-facebook-f hover:text-white cursor-pointer"></i>
-                        <i class="fa-brands fa-twitter hover:text-white cursor-pointer"></i>
-                        <i class="fa-brands fa-instagram hover:text-white cursor-pointer"></i>
+                        <i class="fa-brands fa-facebook-f hover:text-brand-500 cursor-pointer transition"></i>
+                        <i class="fa-brands fa-twitter hover:text-brand-500 cursor-pointer transition"></i>
+                        <i class="fa-brands fa-instagram hover:text-brand-500 cursor-pointer transition"></i>
                     </div>
                 </div>
 
+                <!-- Company Links (Your original links) -->
                 <div class="space-y-2">
-                    <h4 class="font-bold mb-2">Quick Links</h4>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">Home</a>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">About</a>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">Services</a>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">Contact</a>
+                    <h4 class="font-bold mb-2 text-slate-100">Company</h4>
+                    <a href="about.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">About Us</a>
+                    <a href="contact.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">Contact Us</a>
+                    <a href="how-it-works.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">How It Works</a>
+                    <a href="authors.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">Authors</a>
                 </div>
 
+                <!-- Legal & Policies (Your original links) -->
                 <div class="space-y-2">
-                    <h4 class="font-bold mb-2">Resources</h4>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">Documentation</a>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">Tutorials</a>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">Components</a>
-                    <a href="#" class="block text-slate-400 hover:text-brand-400 text-xs">Support</a>
+                    <h4 class="font-bold mb-2 text-slate-100">Legal & Privacy</h4>
+                    <a href="privacy-policy.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">Privacy Policy</a>
+                    <a href="terms.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">Terms & Conditions</a>
+                    <a href="disclaimer.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">Disclaimer</a>
+                    <a href="editorial-policy.html" class="block text-slate-400 hover:text-brand-400 text-xs transition">Editorial Policy</a>
                 </div>
 
+                <!-- Guides & Newsletter -->
                 <div class="space-y-3">
-                    <h4 class="font-bold mb-2">Newsletter</h4>
-                    <p class="text-slate-400 text-[11px] mb-2">Get the latest updates.</p>
+                    <h4 class="font-bold mb-2 text-slate-100">Resources</h4>
+                    <a href="ai-prompt-guide.html" class="block text-slate-400 hover:text-brand-400 text-xs transition mb-4">AI Prompt Guide</a>
+                    <p class="text-slate-400 text-[11px] mb-2">Subscribe to our newsletter.</p>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input type="email" placeholder="Your email" class="w-full px-3 py-2 text-xs rounded bg-slate-800 border border-slate-700 text-white outline-none focus:border-brand-500">
                         <button type="button" class="bg-brand-500 hover:bg-brand-600 px-4 py-2 rounded text-xs font-bold transition whitespace-nowrap">Subscribe</button>
@@ -304,8 +365,9 @@
                 </div>
             </div>
 
+            <!-- Copyright Line -->
             <div class="border-t border-slate-800 pt-6 text-center text-[11px] text-slate-500">
-                <p>© 2026 PromptKaro. All rights reserved.</p>
+                <p>© 2026 PromptKaro. All rights reserved. Created by Nazim Mustafa.</p>
             </div>
         </div>
     </footer>
